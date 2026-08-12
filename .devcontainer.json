@@ -1,6 +1,6 @@
 {
     "name": "Dockhand devcontainer for apps repositories",
-    "image": "ghcr.io/home-assistant/devcontainer:5-apps",
+    "image": "ghcr.io/home-assistant/devcontainer:6-apps",
     "overrideCommand": false,
     "remoteUser": "vscode",
     "appPort": [
