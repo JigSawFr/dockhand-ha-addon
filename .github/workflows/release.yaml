@@ -50,20 +50,50 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   build:
-    name: Build and publish release images
+    name: Build and publish GHCR image
     needs: validate
+    runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
       packages: write
-    uses: ./.github/workflows/build-app.yaml
-    with:
-      app: dockhand
-      publish: true
-      image_tags: |
-        ${{ needs.validate.outputs.version }}
-        latest
-    secrets: inherit
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build and push multi-arch image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./dockhand
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/jigsawfr/dockhand-ha-addon:${{ needs.validate.outputs.version }}
+            ghcr.io/jigsawfr/dockhand-ha-addon:latest
+          labels: |
+            io.hass.type=app
+            io.hass.name=Dockhand
+            io.hass.description=Modern Docker management UI: a lightweight Portainer alternative.
+            io.hass.url=https://github.com/JigSawFr/dockhand-ha-addon
+            io.hass.version=${{ needs.validate.outputs.version }}
+            org.opencontainers.image.source=https://github.com/JigSawFr/dockhand-ha-addon
+            org.opencontainers.image.version=${{ needs.validate.outputs.version }}
+          build-args: |
+            BUILD_VERSION=${{ needs.validate.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   github-release:
     name: Create GitHub Release
