@@ -17,7 +17,7 @@ jobs:
       release_notes: ${{ steps.notes.outputs.release_notes }}
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v7.0.1
 
       - name: Validate tag, config version, and changelog
         id: validate
@@ -73,7 +73,7 @@ jobs:
       contents: write
     steps:
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: v${{ needs.validate.outputs.version }}
           tag_name: v${{ needs.validate.outputs.version }}
