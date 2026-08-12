@@ -67,6 +67,8 @@ jobs:
               'ingress: true',
               'docker_api: true',
               'apparmor: false',
+              '3000/tcp: null',
+              'ports_description:',
               'auto_backup_on_start: true',
               'backup_retention: 5',
           ]

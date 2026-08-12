@@ -50,6 +50,19 @@ Confirm:
 - add-on config includes Docker API access
 - Home Assistant Supervisor is healthy
 
+## Direct port access does not work
+
+Direct access is disabled by default.
+
+If you intentionally want direct access:
+
+1. Open the add-on network settings.
+2. Map `3000/tcp` to a host port.
+3. Restrict access to a trusted network or authenticated reverse proxy.
+4. Configure Dockhand authentication when appropriate.
+
+If you only use the Home Assistant sidebar, leave `3000/tcp` disabled.
+
 ## Database corruption
 
 Symptoms:
