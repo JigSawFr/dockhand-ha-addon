@@ -106,7 +106,7 @@ jobs:
         uses: home-assistant/builder/actions/build-image@2026.03.2
         with:
           arch: ${{ matrix.arch }}
-          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          container-registry-password: ${{ inputs.publish && secrets.GITHUB_TOKEN || '' }}
           context: "./${{ inputs.app }}"
           image: ${{ matrix.image }}
           image-tags: ${{ needs.prepare.outputs.image_tags }}
