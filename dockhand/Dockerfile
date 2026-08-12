@@ -10,6 +10,7 @@ RUN apt-get update \
         curl \
         gnupg \
         nginx \
+        sqlite3 \
         docker.io \
     && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
@@ -26,7 +27,8 @@ COPY --from=dockhand --chown=dockhand:dockhand /home/dockhand /home/dockhand
 # Copy rootfs (nginx config, s6 services, cont-init scripts)
 COPY rootfs /
 RUN chmod +x /etc/cont-init.d/*.sh \
-    && chmod +x /etc/services.d/*/run /etc/services.d/*/finish
+    && chmod +x /etc/services.d/*/run /etc/services.d/*/finish \
+    && chmod +x /usr/bin/dockhand-healthcheck /usr/bin/dockhand-diagnostics
 
 ENV DATA_DIR=/data \
     PORT=3000 \

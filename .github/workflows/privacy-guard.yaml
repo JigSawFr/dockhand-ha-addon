@@ -1,0 +1,23 @@
+name: Privacy guard
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  privacy:
+    name: Public privacy scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Scan tracked public files
+        run: python3 scripts/check-public-privacy.py

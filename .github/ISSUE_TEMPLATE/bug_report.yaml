@@ -1,0 +1,41 @@
+name: Bug report
+description: Report a reproducible add-on bug
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste secrets, tokens, full backups, or private diagnostics.
+  - type: input
+    id: addon-version
+    attributes:
+      label: Add-on version
+      placeholder: "1.0.29"
+    validations:
+      required: true
+  - type: input
+    id: arch
+    attributes:
+      label: Architecture
+      placeholder: "amd64 or aarch64"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Redact secrets and personal data before posting.
+      render: text

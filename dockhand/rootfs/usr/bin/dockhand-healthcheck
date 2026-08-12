@@ -1,0 +1,41 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+set -euo pipefail
+
+status=0
+
+check() {
+    local name="$1"
+    shift
+    if "$@" >/dev/null 2>&1; then
+        echo "OK: ${name}"
+    else
+        echo "FAIL: ${name}"
+        status=1
+    fi
+}
+
+check "data directory exists" test -d /data
+check "data directory writable" test -w /data
+check "database directory exists" test -d /data/db
+check "Docker socket exists" test -S /var/run/docker.sock
+check "Docker socket readable" test -r /var/run/docker.sock
+check "Docker socket writable" test -w /var/run/docker.sock
+check "nginx configuration" nginx -t
+
+if command -v curl >/dev/null 2>&1; then
+    check "Dockhand HTTP on 127.0.0.1:3000" curl -fsS --max-time 5 http://127.0.0.1:3000/
+    check "nginx HTTP on 127.0.0.1:8099" curl -fsS --max-time 5 -H 'X-Ingress-Path: /local/dockhand' http://127.0.0.1:8099/
+else
+    echo "SKIP: curl not installed"
+fi
+
+if command -v sqlite3 >/dev/null 2>&1 && [ -f /data/db/dockhand.db ]; then
+    if sqlite3 /data/db/dockhand.db 'PRAGMA quick_check;' | grep -qx 'ok'; then
+        echo "OK: SQLite quick_check"
+    else
+        echo "WARN: SQLite quick_check did not return ok"
+    fi
+fi
+
+exit "$status"

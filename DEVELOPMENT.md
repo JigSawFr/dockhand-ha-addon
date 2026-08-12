@@ -25,7 +25,7 @@ docker build -t dockhand-local ./dockhand
 
 ## Testing on a Real HA Instance
 
-The local devcontainer does **not** replicate the full security constraints of a real HA instance (see [AGENTS.md](AGENTS.md#local-dev-vs-real-ha-security-posture-gap)). Changes to nginx config, AppArmor, or startup scripts must be verified on a real instance.
+The local devcontainer does **not** replicate the full security constraints of a real HA instance. See [docs/security-model.md](docs/security-model.md) for the add-on security model. Changes to nginx config, AppArmor, or startup scripts must be verified on a real instance.
 
 Three options for deploying a locally-built image to a real HA instance:
 
