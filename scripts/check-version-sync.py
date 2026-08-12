@@ -67,6 +67,11 @@ def main() -> int:
 
     require(f"version: \"{addon_version}\"" in config, "config version literal missing", errors)
     require(f"fnsys/dockhand:v{dockhand_version}" in dockerfile, "Dockerfile Dockhand image literal missing", errors)
+    require(
+        f"fnsys/dockhand:v{dockhand_version}" in changelog,
+        f"dockhand/CHANGELOG.md must mention bundled Dockhand v{dockhand_version}",
+        errors,
+    )
     tracked_text = "\n".join(
         read(file)
         for file in [

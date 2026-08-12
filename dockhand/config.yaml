@@ -1,6 +1,6 @@
 name: Dockhand
 # renovate: datasource=docker depName=fnsys/dockhand
-version: "1.0.41"
+version: "1.0.42"
 slug: dockhand
 description: "Modern Docker management UI: a lightweight Portainer alternative."
 url: "https://github.com/JigSawFr/dockhand-ha-addon"
