@@ -49,6 +49,11 @@ def has_mapping_key(text: str, block: str, key: str) -> bool:
     return bool(match and re.search(rf"^[ \t]+{re.escape(key)}:\s+", match.group("body"), re.M))
 
 
+def has_null_mapping(text: str, block: str, key: str) -> bool:
+    match = re.search(rf"^{re.escape(block)}:\s*$\n(?P<body>(?:^[ \t]+[^\n]+\n?)+)", text, re.M)
+    return bool(match and re.search(rf"^[ \t]+{re.escape(key)}:\s+null\s*$", match.group("body"), re.M))
+
+
 def main() -> int:
     errors: list[str] = []
     cfg = read(CONFIG)
@@ -81,6 +86,11 @@ def main() -> int:
 
     if not has_data_map(cfg):
         errors.append("config map must include writable data mapping")
+
+    if not has_null_mapping(cfg, "ports", "3000/tcp"):
+        errors.append("ports must include disabled optional 3000/tcp mapping")
+    if not has_mapping_key(cfg, "ports_description", "3000/tcp"):
+        errors.append("ports_description must describe optional 3000/tcp risk")
 
     for key in ["log_level", "auto_backup_on_start", "backup_retention"]:
         if not has_mapping_key(cfg, "options", key):

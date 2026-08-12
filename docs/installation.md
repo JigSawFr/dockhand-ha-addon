@@ -32,6 +32,16 @@ To manage the local Home Assistant Docker host:
 3. Add an environment.
 4. Use the local Docker socket option when available.
 
+## Optional direct access
+
+Dockhand normally runs through Home Assistant Ingress. This is the recommended mode.
+
+Advanced users may optionally expose Dockhand's internal `3000/tcp` port from the add-on network settings. The port is disabled by default.
+
+Only enable it on trusted networks or behind your own authenticated reverse proxy. Direct access bypasses Home Assistant Ingress protections.
+
+Do not expose this port directly to the public internet.
+
 ## Updating
 
 Home Assistant shows add-on updates when a new release is published.

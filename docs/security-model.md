@@ -36,6 +36,21 @@ Run this add-on only if you accept that trade-off.
 - Keep the add-on updated.
 - Avoid running unknown third-party containers from Dockhand.
 
+## Optional direct access port
+
+The add-on declares an optional `3000/tcp` port, disabled by default.
+
+Enabling this port exposes Dockhand directly and bypasses Home Assistant Ingress. That means Home Assistant's Ingress path handling and access controls no longer protect the Dockhand UI.
+
+Only enable direct access when all of the following are true:
+
+- you are on a trusted private network, or you place Dockhand behind your own authenticated reverse proxy;
+- Dockhand authentication is configured when appropriate;
+- you understand that Dockhand controls Docker through `/var/run/docker.sock`;
+- you do not expose the port directly to the public internet.
+
+Leave the port disabled for the normal Home Assistant sidebar/Ingress workflow.
+
 ## Data stored by the add-on
 
 Dockhand stores its application data under `/data`, including its SQLite database.
