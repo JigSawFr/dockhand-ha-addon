@@ -1,3 +1,11 @@
+## 1.0.29
+
+- Maintenance handover: prepare independent community-maintained Dockhand Home Assistant add-on.
+- Bundle Dockhand `fnsys/dockhand:v1.0.29`.
+- Publish images under `ghcr.io/jigsawfr/dockhand-ha-addon`.
+- Add Renovate configuration for Dockhand image, Home Assistant base image, and GitHub Actions updates.
+- Update public repository metadata, OCI labels, and installation documentation.
+
 ## 1.0.2
 
 - Fix: authentication login redirects to allow Dockhand user authentication.

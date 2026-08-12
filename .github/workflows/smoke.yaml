@@ -1,0 +1,73 @@
+name: Smoke test
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Image smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Build amd64 image locally
+        run: docker build -t dockhand-ha-addon:smoke ./dockhand
+
+      - name: Inspect image metadata
+        run: |
+          docker image inspect dockhand-ha-addon:smoke \
+            --format '{{ index .Config.Labels "org.opencontainers.image.source" }}' \
+            | grep -Fx 'https://github.com/JigSawFr/dockhand-ha-addon'
+
+      - name: Verify packaged Dockhand app
+        run: |
+          docker run --rm --entrypoint /bin/bash dockhand-ha-addon:smoke -lc '
+            set -euo pipefail
+            test -f /app/server.js
+            test -f /etc/services.d/dockhand/run
+            test -f /etc/services.d/nginx/run
+            test -f /etc/cont-init.d/01-protection-check.sh
+            test -f /etc/cont-init.d/02-data-dir.sh
+            test -f /etc/nginx/conf.d/ingress.conf
+            mkdir -p \
+              /tmp/nginx/client_temp \
+              /tmp/nginx/proxy_temp \
+              /tmp/nginx/fastcgi_temp \
+              /tmp/nginx/uwsgi_temp \
+              /tmp/nginx/scgi_temp
+            node --version
+            nginx -t
+          '
+
+      - name: Verify Home Assistant add-on metadata
+        run: |
+          python3 - <<'PY'
+          import pathlib, re, sys
+          cfg = pathlib.Path('dockhand/config.yaml').read_text()
+          required = [
+              'name: Dockhand',
+              'version: "1.0.29"',
+              'slug: dockhand',
+              'image: "ghcr.io/jigsawfr/dockhand-ha-addon"',
+              'ingress: true',
+              'docker_api: true',
+              'apparmor: false',
+          ]
+          missing = [item for item in required if item not in cfg]
+          if missing:
+              print('Missing config entries:', missing)
+              sys.exit(1)
+          dockerfile = pathlib.Path('dockhand/Dockerfile').read_text()
+          if 'FROM fnsys/dockhand:v1.0.29 AS dockhand' not in dockerfile:
+              print('Dockerfile does not bundle expected Dockhand image')
+              sys.exit(1)
+          PY

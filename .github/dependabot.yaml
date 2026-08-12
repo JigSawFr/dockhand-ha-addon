@@ -5,8 +5,10 @@ updates:
     schedule:
       interval: weekly
       time: "06:00"
+      timezone: "Europe/Paris"
   - package-ecosystem: "docker"
     directory: "/dockhand"
     schedule:
       interval: weekly
       time: "06:15"
+      timezone: "Europe/Paris"

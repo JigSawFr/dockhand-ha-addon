@@ -17,7 +17,7 @@ on:
 jobs:
   prepare:
     name: Prepare
-    if: github.repository == 'alexschwantes/home-assistant-dockhand-app'
+    if: github.repository == 'JigSawFr/dockhand-ha-addon'
     runs-on: ubuntu-latest
     outputs:
       architectures: ${{ steps.info.outputs.architectures }}

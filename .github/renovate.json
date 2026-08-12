@@ -1,0 +1,43 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "timezone": "Europe/Paris",
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "dependencyDashboard": true,
+  "prConcurrentLimit": 5,
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["fnsys/dockhand"],
+      "groupName": "Dockhand upstream image",
+      "commitMessageTopic": "Dockhand",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "deps"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^dockhand/config\\.yaml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=docker depName=fnsys/dockhand\\nversion: \\\"(?<currentValue>[^\\\"]+)\\\""
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "fnsys/dockhand",
+      "versioningTemplate": "docker"
+    }
+  ]
+}
