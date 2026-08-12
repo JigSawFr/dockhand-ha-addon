@@ -4,8 +4,9 @@ set -euo pipefail
 
 redact() {
     sed -E \
-        -e 's/(token|secret|password|passwd|api[_-]?key)[^[:space:]]*/[REDACTED]/Ig' \
-        -e 's#(Authorization: )[[:graph:]]+#\1[REDACTED]#Ig'
+        -e 's#(Authorization:[[:space:]]*)[^[:space:]]+#\1[REDACTED]#Ig' \
+        -e 's#((token|secret|password|passwd|api[_-]?key)[[:space:]]*[:=][[:space:]]*)[^[:space:]]+#\1[REDACTED]#Ig' \
+        -e 's#((token|secret|password|passwd|api[_-]?key)[[:space:]]+)[^[:space:]]+#\1[REDACTED]#Ig'
 }
 
 echo "Dockhand Home Assistant Add-on diagnostics"
@@ -38,7 +39,7 @@ fi
 echo "nginx_config_test=$(nginx -t 2>&1 | redact | tail -1)"
 
 if [ -f /tmp/nginx/error.log ]; then
-    echo "nginx_recent_errors<<EOF"
+    echo "nginx_recent_errors<<DOCKHAND_DIAGNOSTICS_EOF"
     tail -20 /tmp/nginx/error.log | redact
-    echo "EOF"
+    echo "DOCKHAND_DIAGNOSTICS_EOF"
 fi

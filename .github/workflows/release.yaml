@@ -44,9 +44,9 @@ jobs:
           fi
 
           {
-            echo "release_notes<<EOF"
+            echo "release_notes<<DOCKHAND_RELEASE_NOTES_EOF"
             echo "${notes}"
-            echo "EOF"
+            echo "DOCKHAND_RELEASE_NOTES_EOF"
           } >> "$GITHUB_OUTPUT"
 
   build:

@@ -63,12 +63,34 @@
     return replaceState.call(this, state, title, url);
   };
 
+  var locationAssign = Location.prototype.assign;
+  if (locationAssign) {
+    Location.prototype.assign = function (url) {
+      if (typeof url === 'string') url = fix(url);
+      return locationAssign.call(this, url);
+    };
+  }
+
+  var locationReplace = Location.prototype.replace;
+  if (locationReplace) {
+    Location.prototype.replace = function (url) {
+      if (typeof url === 'string') url = fix(url);
+      return locationReplace.call(this, url);
+    };
+  }
+
   function fixElement(element) {
     if (!element || element.nodeType !== 1) return;
     ['src', 'href', 'action'].forEach(function (attr) {
       var value = element.getAttribute && element.getAttribute(attr);
-      if (value && typeof value === 'string') element.setAttribute(attr, fix(value));
+      if (value && typeof value === 'string') {
+        var next = fix(value);
+        if (next !== value) element.setAttribute(attr, next);
+      }
     });
+    if (element.querySelectorAll) {
+      element.querySelectorAll('[src],[href],[action]').forEach(fixElement);
+    }
   }
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -86,7 +108,7 @@
   if (window.MutationObserver) {
     new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
-        mutation.addedNodes && Array.prototype.forEach.call(mutation.addedNodes, fixElement);
+        if (mutation.addedNodes) Array.prototype.forEach.call(mutation.addedNodes, fixElement);
         if (mutation.target) fixElement(mutation.target);
       });
     }).observe(document.documentElement, {
