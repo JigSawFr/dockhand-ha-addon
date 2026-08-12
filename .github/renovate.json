@@ -12,6 +12,8 @@
   ],
   "dependencyDashboard": true,
   "prConcurrentLimit": 5,
+  "semanticCommits": "enabled",
+  "rangeStrategy": "bump",
   "packageRules": [
     {
       "matchDatasources": ["docker"],
@@ -19,14 +21,36 @@
       "groupName": "Dockhand upstream image",
       "commitMessageTopic": "Dockhand",
       "semanticCommitType": "chore",
-      "semanticCommitScope": "deps"
+      "semanticCommitScope": "deps",
+      "automerge": false
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/home-assistant/base-debian"],
+      "groupName": "Home Assistant base image",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "base",
+      "automerge": false
     },
     {
       "matchManagers": ["github-actions"],
-      "groupName": "GitHub Actions"
+      "groupName": "GitHub Actions",
+      "automerge": false
     }
   ],
   "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^dockhand/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "FROM fnsys/dockhand:v(?<currentValue>[^\\s]+) AS dockhand"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "fnsys/dockhand",
+      "versioningTemplate": "docker"
+    },
     {
       "customType": "regex",
       "managerFilePatterns": [

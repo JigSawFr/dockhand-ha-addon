@@ -1,0 +1,33 @@
+name: Version guard
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+jobs:
+  version-sync:
+    name: Validate version sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Validate version metadata
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            python3 scripts/check-version-sync.py --tag "${GITHUB_REF_NAME}"
+          else
+            python3 scripts/check-version-sync.py
+          fi
+
+      - name: Validate add-on metadata
+        run: python3 scripts/check-addon-metadata.py

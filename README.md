@@ -44,6 +44,8 @@ This repository packages Dockhand for Home Assistant OS / Supervisor with Ingres
 
 Security note: disabling Protection Mode gives this add-on privileged access to Docker, similar to Portainer. Only run it if you trust the workload.
 
+Read the full security model before exposing this add-on to other Home Assistant users: [docs/security-model.md](docs/security-model.md).
+
 Dockhand stores its SQLite database and app data in `/data`, mapped to persistent Home Assistant add-on storage. Data survives restarts and updates.
 
 ## Access
@@ -70,7 +72,7 @@ Example:
 - Dockhand image: `fnsys/dockhand:v1.0.29`
 - Add-on version: `1.0.29`
 
-If the add-on wrapper needs a fix without a Dockhand bump, the add-on may use an extra patch version such as `1.0.29.1`.
+The add-on uses strict SemVer. If the wrapper needs a fix without a Dockhand bump, the add-on uses the next SemVer patch version. Four-part versions are not used.
 
 ## Updates
 
@@ -80,7 +82,17 @@ This repository is maintained independently from the original wrapper repository
 - Home Assistant base images
 - GitHub Actions
 
-Releases are published manually at first, after CI validation.
+Releases are published from SemVer tags after CI validation. See [docs/release.md](docs/release.md).
+
+## Documentation
+
+- [Installation](docs/installation.md)
+- [Security model](docs/security-model.md)
+- [Architecture](docs/architecture.md)
+- [Migration](docs/migration.md)
+- [Backup and restore](docs/backup-restore.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Release process](docs/release.md)
 
 ## Attribution
 

@@ -19,5 +19,13 @@ apparmor: false
 map:
   - type: data
     read_only: false
+options:
+  log_level: info
+  auto_backup_on_start: true
+  backup_retention: 5
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)
+  auto_backup_on_start: bool
+  backup_retention: int(1,20)
 init: false
 stage: experimental

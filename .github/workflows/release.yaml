@@ -23,23 +23,8 @@ jobs:
         id: validate
         run: |
           TAG_VERSION="${GITHUB_REF_NAME#v}"
-          CONFIG_VERSION=$(sed -n 's/^version:[[:space:]]*"\([^"]*\)"$/\1/p' dockhand/config.yaml)
-
-          if [[ -z "${CONFIG_VERSION}" ]]; then
-            echo "Could not read version from dockhand/config.yaml"
-            exit 1
-          fi
-
-          if [[ "${TAG_VERSION}" != "${CONFIG_VERSION}" ]]; then
-            echo "Tag version (${TAG_VERSION}) does not match dockhand/config.yaml version (${CONFIG_VERSION})"
-            exit 1
-          fi
-
-          if ! grep -Eq "^##[[:space:]]+${TAG_VERSION}$" dockhand/CHANGELOG.md; then
-            echo "dockhand/CHANGELOG.md does not contain a section header for ${TAG_VERSION}"
-            exit 1
-          fi
-
+          python3 scripts/check-version-sync.py --tag "${GITHUB_REF_NAME}"
+          python3 scripts/check-public-privacy.py
           echo "version=${TAG_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Extract release notes from changelog
@@ -59,9 +44,9 @@ jobs:
           fi
 
           {
-            echo "release_notes<<EOF"
+            echo "release_notes<<DOCKHAND_RELEASE_NOTES_EOF"
             echo "${notes}"
-            echo "EOF"
+            echo "DOCKHAND_RELEASE_NOTES_EOF"
           } >> "$GITHUB_OUTPUT"
 
   build:

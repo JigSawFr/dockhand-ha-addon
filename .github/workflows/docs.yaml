@@ -1,0 +1,54 @@
+name: Docs
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    name: Validate documentation links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Check local markdown links
+        run: |
+          python3 - <<'PY'
+          import re
+          import sys
+          from pathlib import Path
+
+          root = Path('.')
+          errors = []
+          link_re = re.compile(r'\[[^\]]+\]\(([^)]+)\)')
+          for path in list(root.rglob('*.md')) + list(Path('.github/ISSUE_TEMPLATE').glob('*.yaml')):
+              if '.git' in path.parts:
+                  continue
+              text = path.read_text(encoding='utf-8')
+              for target in link_re.findall(text):
+                  if target.startswith(('http://', 'https://', 'mailto:', '#')):
+                      continue
+                  target = target.split('#', 1)[0]
+                  if not target:
+                      continue
+                  resolved = (path.parent / target).resolve()
+                  try:
+                      resolved.relative_to(root.resolve())
+                  except ValueError:
+                      errors.append(f'{path}: link escapes repo: {target}')
+                      continue
+                  if not resolved.exists():
+                      errors.append(f'{path}: missing link target: {target}')
+          if errors:
+              print('\n'.join(errors))
+              sys.exit(1)
+          print('docs_links=ok')
+          PY

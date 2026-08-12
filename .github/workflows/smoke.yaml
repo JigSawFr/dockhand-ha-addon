@@ -37,7 +37,11 @@ jobs:
             test -f /etc/services.d/nginx/run
             test -f /etc/cont-init.d/01-protection-check.sh
             test -f /etc/cont-init.d/02-data-dir.sh
+            test -f /etc/cont-init.d/03-backup-db.sh
             test -f /etc/nginx/conf.d/ingress.conf
+            test -f /usr/bin/dockhand-healthcheck
+            test -f /usr/bin/dockhand-diagnostics
+            test -f /usr/share/dockhand-ha/ingress-shim.js
             mkdir -p \
               /tmp/nginx/client_temp \
               /tmp/nginx/proxy_temp \
@@ -45,7 +49,9 @@ jobs:
               /tmp/nginx/uwsgi_temp \
               /tmp/nginx/scgi_temp
             node --version
+            sqlite3 --version
             nginx -t
+            grep -F "alias /usr/share/dockhand-ha/ingress-shim.js;" /etc/nginx/conf.d/ingress.conf
           '
 
       - name: Verify Home Assistant add-on metadata
@@ -61,6 +67,8 @@ jobs:
               'ingress: true',
               'docker_api: true',
               'apparmor: false',
+              'auto_backup_on_start: true',
+              'backup_retention: 5',
           ]
           missing = [item for item in required if item not in cfg]
           if missing:

@@ -1,0 +1,45 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+set -euo pipefail
+
+redact() {
+    sed -E \
+        -e 's#(Authorization:[[:space:]]*)[^[:space:]]+#\1[REDACTED]#Ig' \
+        -e 's#((token|secret|password|passwd|api[_-]?key)[[:space:]]*[:=][[:space:]]*)[^[:space:]]+#\1[REDACTED]#Ig' \
+        -e 's#((token|secret|password|passwd|api[_-]?key)[[:space:]]+)[^[:space:]]+#\1[REDACTED]#Ig'
+}
+
+echo "Dockhand Home Assistant Add-on diagnostics"
+echo "generated_at=$(date -Iseconds)"
+echo "addon_version=${BUILD_VERSION:-unknown}"
+echo "arch=${BUILD_ARCH:-unknown}"
+echo "node=$(node --version 2>/dev/null || echo unavailable)"
+echo "nginx=$(nginx -v 2>&1 | sed 's#nginx version: ##')"
+echo "data_dir=/data"
+echo "data_writable=$([ -w /data ] && echo true || echo false)"
+echo "docker_socket_exists=$([ -S /var/run/docker.sock ] && echo true || echo false)"
+echo "docker_socket_readable=$([ -r /var/run/docker.sock ] && echo true || echo false)"
+echo "docker_socket_writable=$([ -w /var/run/docker.sock ] && echo true || echo false)"
+
+if command -v du >/dev/null 2>&1 && [ -d /data ]; then
+    echo "data_size=$(du -sh /data 2>/dev/null | awk '{print $1}')"
+fi
+
+if [ -f /data/db/dockhand.db ]; then
+    echo "database_present=true"
+    if command -v sqlite3 >/dev/null 2>&1; then
+        echo "sqlite_quick_check=$(sqlite3 /data/db/dockhand.db 'PRAGMA quick_check;' 2>&1 | redact | head -1)"
+    else
+        echo "sqlite_quick_check=sqlite3 unavailable"
+    fi
+else
+    echo "database_present=false"
+fi
+
+echo "nginx_config_test=$(nginx -t 2>&1 | redact | tail -1)"
+
+if [ -f /tmp/nginx/error.log ]; then
+    echo "nginx_recent_errors<<DOCKHAND_DIAGNOSTICS_EOF"
+    tail -20 /tmp/nginx/error.log | redact
+    echo "DOCKHAND_DIAGNOSTICS_EOF"
+fi
