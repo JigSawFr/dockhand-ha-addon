@@ -1,5 +1,5 @@
 # Stage 1 — extract Dockhand artifacts
-FROM fnsys/dockhand:v1.0.29 AS dockhand
+FROM fnsys/dockhand:v1.0.41 AS dockhand
 
 # Stage 2 — HA Debian base (glibc, s6-overlay, bashio)
 FROM ghcr.io/home-assistant/base-debian:trixie-2026.04.0
