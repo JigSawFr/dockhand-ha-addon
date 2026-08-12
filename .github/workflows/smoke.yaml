@@ -59,9 +59,17 @@ jobs:
           python3 - <<'PY'
           import pathlib, re, sys
           cfg = pathlib.Path('dockhand/config.yaml').read_text()
+          dockerfile = pathlib.Path('dockhand/Dockerfile').read_text()
+          config_version = re.search(r'^version: "([^"]+)"$', cfg, re.M)
+          dockhand_from = re.search(r'^FROM fnsys/dockhand:v([^\s]+) AS dockhand$', dockerfile, re.M)
+          if not config_version or not dockhand_from:
+              print('Could not parse add-on or Dockhand version')
+              sys.exit(1)
+          if config_version.group(1) != dockhand_from.group(1):
+              print('Add-on version does not match bundled Dockhand version')
+              sys.exit(1)
           required = [
               'name: Dockhand',
-              'version: "1.0.29"',
               'slug: dockhand',
               'image: "ghcr.io/jigsawfr/dockhand-ha-addon"',
               'ingress: true',
@@ -75,9 +83,5 @@ jobs:
           missing = [item for item in required if item not in cfg]
           if missing:
               print('Missing config entries:', missing)
-              sys.exit(1)
-          dockerfile = pathlib.Path('dockhand/Dockerfile').read_text()
-          if 'FROM fnsys/dockhand:v1.0.29 AS dockhand' not in dockerfile:
-              print('Dockerfile does not bundle expected Dockhand image')
               sys.exit(1)
           PY

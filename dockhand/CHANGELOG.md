@@ -1,3 +1,7 @@
+## 1.0.41
+
+- Bundle Dockhand `fnsys/dockhand:v1.0.41`.
+
 ## 1.0.29
 
 - Maintenance handover: prepare independent community-maintained Dockhand Home Assistant add-on.
