@@ -50,18 +50,6 @@
       "datasourceTemplate": "docker",
       "depNameTemplate": "fnsys/dockhand",
       "versioningTemplate": "docker"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": [
-        "/^dockhand/config\\.yaml$/"
-      ],
-      "matchStrings": [
-        "# renovate: datasource=docker depName=fnsys/dockhand\\nversion: \\\"(?<currentValue>[^\\\"]+)\\\""
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "fnsys/dockhand",
-      "versioningTemplate": "docker"
     }
   ]
 }

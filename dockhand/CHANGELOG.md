@@ -1,3 +1,8 @@
+## 1.0.42
+
+- Wrapper-only maintenance release.
+- Bundles Dockhand `fnsys/dockhand:v1.0.41`.
+
 ## 1.0.41
 
 - Bundle Dockhand `fnsys/dockhand:v1.0.41`.
