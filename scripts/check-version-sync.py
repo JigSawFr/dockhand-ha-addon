@@ -8,7 +8,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SEMVER_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
+BASE_SEMVER_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
+ADDON_VERSION_RE = re.compile(r"^(?P<base>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))(?:-ha\.(?P<revision>[1-9]\d*))?$")
 FOUR_PART_VERSION_RE = re.compile(r"\bv?\d+\.\d+\.\d+\.\d+\b")
 IPV4_RE = re.compile(r"^\d{1,3}(?:\.\d{1,3}){3}$")
 DOCKHAND_FROM_RE = re.compile(r"^FROM\s+fnsys/dockhand:v(?P<version>[^\s]+)\s+AS\s+dockhand\s*$", re.M)
@@ -31,23 +32,32 @@ def require(condition: bool, message: str, errors: list[str]) -> None:
 def parse_version_from_config(errors: list[str]) -> str:
     cfg = read("dockhand/config.yaml")
     match = CONFIG_VERSION_RE.search(cfg)
-    require(match is not None, "dockhand/config.yaml must contain version: \"X.Y.Z\"", errors)
+    require(match is not None, "dockhand/config.yaml must contain version: \"X.Y.Z[-ha.N]\"", errors)
     return match.group("version") if match else ""
+
+
+def addon_base(version: str) -> str:
+    match = ADDON_VERSION_RE.fullmatch(version)
+    return match.group("base") if match else ""
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tag", help="Optional release tag to validate, e.g. v1.0.29")
+    parser.add_argument("--tag", help="Optional release tag to validate, e.g. v1.0.41-ha.1")
     args = parser.parse_args()
 
     errors: list[str] = []
     config = read("dockhand/config.yaml")
     dockerfile = read("dockhand/Dockerfile")
     changelog = read("dockhand/CHANGELOG.md")
-    readme = read("README.md")
 
     addon_version = parse_version_from_config(errors)
-    require(bool(SEMVER_RE.fullmatch(addon_version)), f"add-on version must be strict SemVer: {addon_version!r}", errors)
+    addon_match = ADDON_VERSION_RE.fullmatch(addon_version)
+    require(
+        bool(addon_match),
+        f"add-on version must be Dockhand SemVer or wrapper revision X.Y.Z-ha.N: {addon_version!r}",
+        errors,
+    )
 
     image_match = CONFIG_IMAGE_RE.search(config)
     require(image_match is not None, "dockhand/config.yaml must contain image", errors)
@@ -57,10 +67,17 @@ def main() -> int:
     dockhand_match = DOCKHAND_FROM_RE.search(dockerfile)
     require(dockhand_match is not None, "Dockerfile must use FROM fnsys/dockhand:vX.Y.Z AS dockhand", errors)
     dockhand_version = dockhand_match.group("version") if dockhand_match else ""
-    require(bool(SEMVER_RE.fullmatch(dockhand_version)), f"Dockhand image version must be strict SemVer: {dockhand_version!r}", errors)
+    require(bool(BASE_SEMVER_RE.fullmatch(dockhand_version)), f"Dockhand image version must be strict SemVer: {dockhand_version!r}", errors)
 
     base_match = BASE_FROM_RE.search(dockerfile)
     require(base_match is not None, "Dockerfile must use Home Assistant base Debian image", errors)
+
+    if addon_match and dockhand_version:
+        require(
+            addon_base(addon_version) == dockhand_version,
+            f"add-on base version {addon_base(addon_version)!r} must match bundled Dockhand version {dockhand_version!r}",
+            errors,
+        )
 
     headers = [m.group("version") for m in CHANGELOG_HEADER_RE.finditer(changelog)]
     require(addon_version in headers, f"dockhand/CHANGELOG.md must contain ## {addon_version}", errors)

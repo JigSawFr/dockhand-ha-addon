@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SEMVER_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
+BASE_SEMVER_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
+ADDON_VERSION_RE = re.compile(r"^(?P<base>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))(?:-ha\.(?P<revision>[1-9]\d*))?$")
 CONFIG_VERSION_RE = re.compile(r'^version:\s+"[^"]+"\s*$', re.M)
 DOCKHAND_FROM_RE = re.compile(r"^FROM\s+fnsys/dockhand:v[^\s]+\s+AS\s+dockhand\s*$", re.M)
 CHANGELOG_HEADER_RE = re.compile(r"^##\s+")
@@ -26,6 +26,11 @@ def replace(path_: Path, pattern: re.Pattern[str], repl: str) -> None:
     path_.write_text(new, encoding="utf-8")
 
 
+def addon_base(version: str) -> str:
+    match = ADDON_VERSION_RE.fullmatch(version)
+    return match.group("base") if match else ""
+
+
 def ensure_changelog(version: str, dockhand_version: str, wrapper_only: bool) -> None:
     p = path("dockhand/CHANGELOG.md")
     text = p.read_text(encoding="utf-8")
@@ -33,7 +38,7 @@ def ensure_changelog(version: str, dockhand_version: str, wrapper_only: bool) ->
         return
     header = f"## {version}\n\n"
     if wrapper_only:
-        body = f"- Wrapper-only maintenance release.\n- Bundles Dockhand `fnsys/dockhand:v{dockhand_version}`.\n\n"
+        body = f"- Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v{dockhand_version}`.\n- Does not change the bundled Dockhand application version.\n\n"
     else:
         body = f"- Bundle Dockhand `fnsys/dockhand:v{dockhand_version}`.\n- Update Home Assistant add-on metadata and release artifacts.\n\n"
     p.write_text(header + body + text, encoding="utf-8")
@@ -41,14 +46,23 @@ def ensure_changelog(version: str, dockhand_version: str, wrapper_only: bool) ->
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("addon_version")
-    parser.add_argument("--dockhand-version", required=True)
-    parser.add_argument("--wrapper-only", action="store_true")
+    parser.add_argument("addon_version", help="Dockhand version or wrapper revision, e.g. 1.0.41 or 1.0.41-ha.1")
+    parser.add_argument("--dockhand-version", required=True, help="Bundled upstream Dockhand version, e.g. 1.0.41")
+    parser.add_argument("--wrapper-only", action="store_true", help="Require addon_version to be X.Y.Z-ha.N for a wrapper-only revision")
     args = parser.parse_args()
 
-    for label, value in {"addon version": args.addon_version, "Dockhand version": args.dockhand_version}.items():
-        if not SEMVER_RE.fullmatch(value):
-            raise SystemExit(f"{label} must be strict SemVer: {value}")
+    if not ADDON_VERSION_RE.fullmatch(args.addon_version):
+        raise SystemExit(f"add-on version must be X.Y.Z or X.Y.Z-ha.N: {args.addon_version}")
+    if not BASE_SEMVER_RE.fullmatch(args.dockhand_version):
+        raise SystemExit(f"Dockhand version must be strict SemVer: {args.dockhand_version}")
+    if addon_base(args.addon_version) != args.dockhand_version:
+        raise SystemExit(
+            f"add-on base version {addon_base(args.addon_version)} must match Dockhand version {args.dockhand_version}"
+        )
+    if args.wrapper_only and not re.search(r"-ha\.[1-9]\d*$", args.addon_version):
+        raise SystemExit("wrapper-only releases must use X.Y.Z-ha.N")
+    if not args.wrapper_only and "-ha." in args.addon_version:
+        raise SystemExit("use --wrapper-only for X.Y.Z-ha.N releases")
 
     replace(path("dockhand/config.yaml"), CONFIG_VERSION_RE, f'version: "{args.addon_version}"')
     replace(path("dockhand/Dockerfile"), DOCKHAND_FROM_RE, f"FROM fnsys/dockhand:v{args.dockhand_version} AS dockhand")

@@ -1,12 +1,7 @@
-## 1.0.43
+## 1.0.41-ha.1
 
-- Wrapper-only maintenance release.
-- Bundles Dockhand `fnsys/dockhand:v1.0.41`.
-
-## 1.0.42
-
-- Wrapper-only maintenance release.
-- Bundles Dockhand `fnsys/dockhand:v1.0.41`.
+- Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.41`.
+- Fix GHCR release publishing workflow without changing the bundled Dockhand application version.
 
 ## 1.0.41
 
