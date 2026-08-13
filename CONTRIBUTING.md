@@ -6,7 +6,7 @@ Thanks for improving Dockhand Home Assistant Add-on.
 
 - Keep this repository independent from upstream wrapper sync automation.
 - Preserve the fork history.
-- Use strict SemVer.
+- Use SemVer-compatible versions anchored to the bundled Dockhand version.
 - Do not commit personal data, secrets, tokens, `.env` files, private keys, or real diagnostics containing credentials.
 - Keep public identity metadata generic and GitHub-safe.
 
@@ -38,20 +38,21 @@ bash scripts/preflight.sh
 Use the bump helper:
 
 ```bash
-python3 scripts/bump-version.py 1.0.30 --dockhand-version 1.0.30
+python3 scripts/bump-version.py 1.0.99 --dockhand-version 1.0.99
 ```
 
 Wrapper-only patch:
 
 ```bash
-python3 scripts/bump-version.py 1.0.30 --dockhand-version 1.0.29 --wrapper-only
+python3 scripts/bump-version.py 1.0.41.1 --dockhand-version 1.0.41 --wrapper-only
 ```
 
 Rules:
 
-- Add-on versions are strict `MAJOR.MINOR.PATCH` SemVer.
-- Dockhand image versions are tracked separately.
-- Do not use four-part versions.
+- Dockhand bumps use the exact upstream `MAJOR.MINOR.PATCH` version.
+- Wrapper-only fixes use `MAJOR.MINOR.PATCH.N` on the same Dockhand base.
+- Use the same string for config version, Git tag, GitHub Release, and GHCR tag.
+- Use numeric wrapper revisions `X.Y.Z.N`; do not use `+` build metadata.
 - Add or update the matching `dockhand/CHANGELOG.md` section.
 
 ## Pull request checklist
@@ -67,7 +68,7 @@ Before opening a PR:
 
 ## Release checklist
 
-Before tagging `vX.Y.Z`:
+Before tagging `vX.Y.Z` or `vX.Y.Z.N`:
 
 - [ ] Version guard is green.
 - [ ] Privacy guard is green.
@@ -75,4 +76,4 @@ Before tagging `vX.Y.Z`:
 - [ ] Smoke test is green.
 - [ ] Builder is green.
 - [ ] GHCR publish permissions are confirmed.
-- [ ] Changelog section `## X.Y.Z` exists.
+- [ ] Matching changelog section exists, e.g. `## X.Y.Z.N`.

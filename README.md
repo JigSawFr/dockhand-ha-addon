@@ -69,10 +69,11 @@ The add-on version tracks the bundled Dockhand image version where practical.
 
 Example:
 
-- Dockhand image: `fnsys/dockhand:v1.0.29`
-- Add-on version: `1.0.29`
+- Dockhand image: `fnsys/dockhand:v1.0.41`
+- Add-on version: `1.0.41`
+- Wrapper-only revision: `1.0.41.1`
 
-The add-on uses strict SemVer. If the wrapper needs a fix without a Dockhand bump, the add-on uses the next SemVer patch version. Four-part versions are not used.
+The add-on uses Home Assistant-compatible numeric revisions anchored to the bundled Dockhand version. Wrapper-only fixes use `X.Y.Z.N`: the bundled Dockhand version stays visible while Home Assistant can still sort the release as an update. `+` build metadata is not used for release/package tags because Docker tags do not allow `+`.
 
 ## Updates
 

@@ -1,27 +1,29 @@
 # Release process
 
-This repository uses strict SemVer and release tags in the form `vX.Y.Z`.
+This repository keeps the add-on version anchored to the bundled Dockhand version.
 
 ## Version policy
 
-- Add-on version: strict `MAJOR.MINOR.PATCH`.
-- Dockhand upstream image version: tracked separately.
-- When possible, the add-on version matches the bundled Dockhand version.
-- Wrapper-only fixes use the next SemVer patch version.
-- Do not use four-part versions.
+- Dockhand bump: use the exact upstream Dockhand SemVer, e.g. `1.0.41`.
+- Wrapper-only fix: use a numeric wrapper revision on the same Dockhand base, e.g. `1.0.41.1`, then `1.0.41.2`.
+- Use the same version string for Home Assistant metadata, Git tags, GitHub Releases, and GHCR tags.
+- Release tags are `vX.Y.Z` or `vX.Y.Z.N`.
+- Do not bump to the next upstream-looking patch version for wrapper-only fixes.
+- Use numeric wrapper revisions such as `X.Y.Z.1` for wrapper-only fixes.
+- Do not use SemVer build metadata with `+` because Docker image tags do not allow `+`.
 
 ## Bump version
 
 Dockhand bump:
 
 ```bash
-python3 scripts/bump-version.py 1.0.30 --dockhand-version 1.0.30
+python3 scripts/bump-version.py 1.0.99 --dockhand-version 1.0.99
 ```
 
-Wrapper-only bump:
+Wrapper-only revision:
 
 ```bash
-python3 scripts/bump-version.py 1.0.30 --dockhand-version 1.0.29 --wrapper-only
+python3 scripts/bump-version.py 1.0.41.1 --dockhand-version 1.0.41 --wrapper-only
 ```
 
 ## Preflight
@@ -46,9 +48,11 @@ bash scripts/preflight.sh
 After CI is green on `main`:
 
 ```bash
-git tag vX.Y.Z
-git push origin vX.Y.Z
+git tag vX.Y.Z.N
+git push origin vX.Y.Z.N
 ```
+
+For a pure Dockhand bump, use `vX.Y.Z` instead.
 
 The release workflow:
 
@@ -64,6 +68,6 @@ Verify:
 
 - GitHub Release exists
 - GHCR package is public
-- tags `X.Y.Z` and `latest` resolve
+- tags `X.Y.Z[.N]` and `latest` resolve
 - Home Assistant sees the update
 - install/update works on a test system
