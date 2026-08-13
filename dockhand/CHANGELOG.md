@@ -1,4 +1,4 @@
-## 1.0.41-ha.1
+## 1.0.41.1
 
 - Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.41`.
 - Fix GHCR release publishing workflow without changing the bundled Dockhand application version.

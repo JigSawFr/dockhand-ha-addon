@@ -71,9 +71,9 @@ Example:
 
 - Dockhand image: `fnsys/dockhand:v1.0.41`
 - Add-on version: `1.0.41`
-- Wrapper-only revision: `1.0.41-ha.1`
+- Wrapper-only revision: `1.0.41.1`
 
-The add-on uses SemVer-compatible revisions anchored to the bundled Dockhand version. Wrapper-only fixes use `X.Y.Z-ha.N` instead of pretending to be the next Dockhand patch. Four-part versions and `+` build metadata are not used for release/package tags.
+The add-on uses Home Assistant-compatible numeric revisions anchored to the bundled Dockhand version. Wrapper-only fixes use `X.Y.Z.N`: the bundled Dockhand version stays visible while Home Assistant can still sort the release as an update. `+` build metadata is not used for release/package tags because Docker tags do not allow `+`.
 
 ## Updates
 

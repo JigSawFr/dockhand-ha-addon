@@ -46,7 +46,7 @@ Do not expose this port directly to the public internet.
 
 Home Assistant shows add-on updates when a new release is published.
 
-Release tags use `vX.Y.Z` for Dockhand bumps and `vX.Y.Z-ha.N` for wrapper-only revisions on the same Dockhand base.
+Release tags use `vX.Y.Z` for Dockhand bumps and `vX.Y.Z.N` for wrapper-only revisions on the same Dockhand base.
 
 ## Uninstalling
 
