@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Installation guide
+    url: https://github.com/JigSawFr/dockhand-ha-addon/blob/main/docs/installation.md
+    about: Read this before opening installation issues.
+  - name: Troubleshooting guide
+    url: https://github.com/JigSawFr/dockhand-ha-addon/blob/main/docs/troubleshooting.md
+    about: Common startup, ingress, and Docker socket checks.
+  - name: Security policy
+    url: https://github.com/JigSawFr/dockhand-ha-addon/blob/main/SECURITY.md
+    about: Report sensitive issues privately.

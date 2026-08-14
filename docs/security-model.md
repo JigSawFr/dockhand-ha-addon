@@ -72,6 +72,6 @@ If Dockhand behaves unexpectedly:
 1. Stop the add-on.
 2. Create a Home Assistant backup.
 3. Export add-on logs.
-4. Run diagnostics if available.
+4. Run `dockhand-support-bundle` and review the generated file before sharing excerpts.
 5. Review Docker containers created or modified recently.
 6. Report security-sensitive issues privately.

@@ -49,6 +49,7 @@ jobs:
             test -f /etc/nginx/conf.d/ingress.conf
             test -f /usr/bin/dockhand-healthcheck
             test -f /usr/bin/dockhand-diagnostics
+            test -f /usr/bin/dockhand-support-bundle
             test -f /usr/share/dockhand-ha/ingress-shim.js
             mkdir -p \
               /tmp/nginx/client_temp \
@@ -61,6 +62,9 @@ jobs:
             nginx -t
             grep -F "alias /usr/share/dockhand-ha/ingress-shim.js;" /etc/nginx/conf.d/ingress.conf
           '
+
+      - name: Run real Home Assistant ingress E2E
+        run: scripts/test-ingress-e2e.sh
 
       - name: Verify Home Assistant add-on metadata
         run: |

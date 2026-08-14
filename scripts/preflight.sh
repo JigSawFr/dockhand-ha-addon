@@ -2,6 +2,9 @@
 set -euo pipefail
 
 python3 -m py_compile scripts/*.py
+scripts/test-backup-db.sh
+scripts/test-diagnostics-redaction.sh
+scripts/release-dry-run.py --json >/dev/null
 if command -v node >/dev/null 2>&1; then
     node scripts/test-ingress-shim.js
 else
@@ -45,7 +48,11 @@ print('preflight=ok')
 PY
 
 if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
-    docker build -t dockhand-ha-addon:smoke ./dockhand
+    if docker build -t dockhand-ha-addon:smoke ./dockhand; then
+        IMAGE=dockhand-ha-addon:smoke scripts/test-ingress-e2e.sh
+    else
+        echo 'docker build unavailable in this environment; skipping image build and ingress E2E'
+    fi
 elif command -v docker >/dev/null 2>&1; then
     echo 'docker daemon unavailable; skipping image build'
 else

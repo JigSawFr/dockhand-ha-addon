@@ -99,4 +99,10 @@ dockhand-healthcheck
 dockhand-diagnostics
 ```
 
-The diagnostics output is designed to avoid secrets, but review before sharing publicly.
+For a file-based bundle:
+
+```bash
+dockhand-support-bundle
+```
+
+The diagnostics output is designed to redact common secrets, but review it before sharing publicly. See [Support bundle](support-bundle.md).

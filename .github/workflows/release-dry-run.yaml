@@ -1,0 +1,25 @@
+name: Release dry-run
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+  push:
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run:
+    name: Validate release dry-run
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Validate release metadata without publishing
+        run: scripts/release-dry-run.py --json

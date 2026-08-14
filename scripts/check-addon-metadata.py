@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "dockhand/config.yaml"
 REPOSITORY = ROOT / "repository.yaml"
 DOCKERFILE = ROOT / "dockhand/Dockerfile"
+NGINX = ROOT / "dockhand/rootfs/etc/nginx/conf.d/ingress.conf"
 APPARMOR = ROOT / "dockhand/apparmor.txt"
 
 
@@ -103,11 +104,16 @@ def main() -> int:
         errors.append("ports_description must describe optional 3000/tcp risk")
 
     dockerfile = read(DOCKERFILE)
+    nginx = read(NGINX)
     apparmor = read(APPARMOR)
     if "HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3" not in dockerfile:
         errors.append("Dockerfile must define the native Docker HEALTHCHECK")
     if "CMD /usr/bin/dockhand-healthcheck || exit 1" not in dockerfile:
         errors.append("Dockerfile HEALTHCHECK must call dockhand-healthcheck")
+    if "/usr/bin/dockhand-support-bundle" not in dockerfile:
+        errors.append("Dockerfile must make dockhand-support-bundle executable")
+    if "sub_filter_types   text/html application/xhtml+xml;" not in nginx:
+        errors.append("nginx ingress must inject shim into text/html and application/xhtml+xml")
     for entry in ["profile dockhand", "network inet stream,", "network unix stream,", "/var/run/docker.sock rw,", "/data/** rw,"]:
         if entry not in apparmor:
             errors.append(f"AppArmor profile must contain {entry!r}")

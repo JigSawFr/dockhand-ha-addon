@@ -27,7 +27,7 @@ COPY --from=dockhand --chown=dockhand:dockhand /home/dockhand /home/dockhand
 COPY rootfs /
 RUN chmod +x /etc/cont-init.d/*.sh \
     && chmod +x /etc/services.d/*/run /etc/services.d/*/finish \
-    && chmod +x /usr/bin/dockhand-healthcheck /usr/bin/dockhand-diagnostics
+    && chmod +x /usr/bin/dockhand-healthcheck /usr/bin/dockhand-diagnostics /usr/bin/dockhand-support-bundle
 
 ENV DATA_DIR=/data \
     PORT=3000 \
