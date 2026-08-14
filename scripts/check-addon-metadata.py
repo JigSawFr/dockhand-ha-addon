@@ -67,8 +67,11 @@ def main() -> int:
     cfg = read(CONFIG)
     repo = read(REPOSITORY)
 
+    config_version = scalar(cfg, "version")
+    beta = is_beta_version(config_version)
+    expected_config_name = "Dockhand Beta by JigSawFr" if beta else "Dockhand by JigSawFr"
     expected_scalars = {
-        "name": "Dockhand",
+        "name": expected_config_name,
         "slug": "dockhand",
         "image": "ghcr.io/jigsawfr/dockhand-ha-addon",
     }
@@ -91,6 +94,13 @@ def main() -> int:
     for key in ["panel_admin", "apparmor", "watchdog"]:
         if scalar(cfg, key) is not None:
             errors.append(f"config {key!r} should be omitted to stay linter-compatible")
+
+    stage = scalar(cfg, "stage")
+    if beta:
+        if stage != "experimental":
+            errors.append("beta config must define stage: experimental")
+    elif stage is not None:
+        errors.append("stable config must not define stage; it must not be marked experimental")
 
     arch = block_items(cfg, "arch")
     if arch != ["aarch64", "amd64"]:
@@ -142,9 +152,7 @@ def main() -> int:
 
     repo_name = scalar(repo, "name")
     repo_url = scalar(repo, "url")
-    config_version = scalar(cfg, "version")
-    beta = is_beta_version(config_version)
-    expected_repo_name = "Dockerhand Beta by JigSawFr" if beta else "Dockerhand by JigSawFr"
+    expected_repo_name = "Dockhand Beta by JigSawFr" if beta else "Dockhand by JigSawFr"
     expected_repo_url = "https://github.com/JigSawFr/dockhand-ha-addon#dev" if beta else "https://github.com/JigSawFr/dockhand-ha-addon"
     if repo_name != expected_repo_name:
         errors.append(f"repository.yaml name must be {expected_repo_name!r} for this release channel")

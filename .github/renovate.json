@@ -9,7 +9,7 @@
   "baseBranches": ["dev"],
   "schedule": ["before 6am on monday"],
   "labels": ["dependencies"],
-  "dependencyDashboardTitle": "Dependency Dashboard — Dockerhand",
+  "dependencyDashboardTitle": "Dependency Dashboard — Dockhand",
   "prConcurrentLimit": 5,
   "prHourlyLimit": 2,
   "rangeStrategy": "bump",

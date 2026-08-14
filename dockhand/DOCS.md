@@ -1,4 +1,4 @@
-# Dockerhand by JigSawFr
+# Dockhand by JigSawFr
 
 This add-on packages [Dockhand](https://github.com/Finsys/dockhand) for Home Assistant OS / Supervisor.
 

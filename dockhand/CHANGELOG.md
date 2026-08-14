@@ -36,7 +36,7 @@
 - Enable Home Assistant ingress streaming and add a native Docker `HEALTHCHECK`.
 - Keep the packaged AppArmor profile active through Home Assistant's default behavior for beta validation.
 - Add Home Assistant backup hooks to checkpoint SQLite and exclude local startup backup copies.
-- Rename Home Assistant repository branding to Dockerhand stable/beta names.
+- Rename Home Assistant repository branding to Dockhand stable/beta names.
 - Polish README and channel/install documentation.
 - Harden the public privacy guard against local-environment disclosure.
 - Does not change the bundled Dockhand application version.

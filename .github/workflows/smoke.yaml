@@ -34,7 +34,7 @@ jobs:
             | grep -Fx 'https://github.com/JigSawFr/dockhand-ha-addon'
           docker image inspect dockhand-ha-addon:smoke \
             --format '{{ index .Config.Labels "org.opencontainers.image.title" }}' \
-            | grep -Fx 'Dockerhand by JigSawFr'
+            | grep -Fx 'Dockhand by JigSawFr'
 
       - name: Verify packaged Dockhand app
         run: |
@@ -79,8 +79,18 @@ jobs:
           if not config_version or not dockhand_from:
               print('Could not parse add-on or Dockhand version')
               sys.exit(1)
+          version = config_version.group(1)
+          beta = '-beta.' in version
+          expected_name = 'name: Dockhand Beta by JigSawFr' if beta else 'name: Dockhand by JigSawFr'
+          if beta:
+              if 'stage: experimental' not in cfg:
+                  print('Beta channel must declare stage: experimental')
+                  sys.exit(1)
+          elif re.search(r'^stage:', cfg, re.M):
+              print('Stable channel must not declare stage')
+              sys.exit(1)
           required = [
-              'name: Dockhand',
+              expected_name,
               'slug: dockhand',
               'image: "ghcr.io/jigsawfr/dockhand-ha-addon"',
               'ingress: true',

@@ -4,8 +4,8 @@
 
 | Need | Use |
 |---|---|
-| Normal install | `Dockerhand by JigSawFr` stable channel |
-| Test upcoming wrapper changes | `Dockerhand Beta by JigSawFr` beta channel |
+| Normal install | `Dockhand by JigSawFr` stable channel |
+| Test upcoming wrapper changes | `Dockhand Beta by JigSawFr` beta channel |
 
 ## Stable install
 
@@ -31,7 +31,7 @@ Repository URL:
 https://github.com/JigSawFr/dockhand-ha-addon#dev
 ```
 
-The beta channel appears as `Dockerhand Beta by JigSawFr` and publishes versions such as `1.0.41.2-beta.1`. It is intended for validating wrapper changes before they are promoted to stable.
+The beta channel appears as `Dockhand Beta by JigSawFr` and publishes versions such as `1.0.41.2-beta.1`. It is intended for validating wrapper changes before they are promoted to stable.
 
 See [Release channels](channels.md) for the full stable/beta policy.
 
