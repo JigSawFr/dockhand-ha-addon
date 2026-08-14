@@ -1,104 +1,137 @@
 <p align="center">
-  <a href="https://www.home-assistant.io/"><img src="home-assistant-logo.svg" alt="Home Assistant Logo" height="60" /></a>
-  &nbsp;&nbsp;<img src="plus-icon.svg" alt="Plus" height="30" />&nbsp;&nbsp;
-  <a href="https://github.com/Finsys/dockhand"><img src="dockhand/logo.png" alt="Dockhand Logo" height="60" /></a>
+  <a href="https://www.home-assistant.io/"><img src="home-assistant-logo.svg" alt="Home Assistant" height="58" /></a>
+  &nbsp;&nbsp;<img src="plus-icon.svg" alt="plus" height="28" />&nbsp;&nbsp;
+  <a href="https://github.com/Finsys/dockhand"><img src="dockhand/logo.png" alt="Dockhand" height="58" /></a>
 </p>
 
-# Dockhand Home Assistant Add-on
+<h1 align="center">Dockerhand by JigSawFr</h1>
 
-[![GitHub Release][releases-shield]][releases]
-![Project Stage][project-stage-shield]
-![Supports aarch64 Architecture][aarch64-shield]
-![Supports amd64 Architecture][amd64-shield]
+<p align="center">
+  <strong>Dockhand packaged cleanly for Home Assistant OS / Supervisor.</strong><br />
+  Docker management through Home Assistant Ingress, with persistent data, beta channel, and multi-arch GHCR images.
+</p>
 
-A Home Assistant add-on repository for [Dockhand](https://github.com/Finsys/dockhand), a modern lightweight Docker management UI and Portainer alternative.
+<p align="center">
+  <a href="https://github.com/JigSawFr/dockhand-ha-addon/releases"><img alt="Release" src="https://img.shields.io/github/v/release/JigSawFr/dockhand-ha-addon?label=release" /></a>
+  <img alt="Project stage" src="https://img.shields.io/badge/project%20stage-development-yellowgreen.svg" />
+  <img alt="aarch64" src="https://img.shields.io/badge/aarch64-yes-green.svg" />
+  <img alt="amd64" src="https://img.shields.io/badge/amd64-yes-green.svg" />
+  <img alt="Home Assistant" src="https://img.shields.io/badge/Home%20Assistant-Add--on-41BDF5" />
+</p>
 
-This repository packages Dockhand for Home Assistant OS / Supervisor with Ingress support, persistent `/data` storage, and multi-arch images published to GHCR.
+---
+
+## Why this add-on?
+
+[Dockhand](https://github.com/Finsys/dockhand) is a modern, lightweight Docker management UI — a cleaner Portainer-style experience for day-to-day container operations.
+
+This repository wraps Dockhand as a Home Assistant add-on with:
+
+- **Home Assistant Ingress** as the default access path.
+- **Persistent `/data` storage** for Dockhand database and app data.
+- **Multi-arch images** for `aarch64` and `amd64`.
+- **Stable + beta channels** so risky wrapper changes can be tested first.
+- **Explicit security documentation** for Docker socket access.
 
 > Community project: this add-on is not affiliated with Dockhand, Finsys, or Home Assistant.
 
-## Installation
+## Install
 
-### Stable install
+### Stable channel
+
+Best for normal use.
 
 [![Open your Home Assistant instance and show the add-on repository dialog with this repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_addon/?repository_url=https%3A%2F%2Fgithub.com%2FJigSawFr%2Fdockhand-ha-addon&addon=dockhand)
 
-### Beta install
+Manual repository URL:
 
-For prerelease testing, add the `dev` branch repository URL manually:
+```text
+https://github.com/JigSawFr/dockhand-ha-addon
+```
+
+Repository name in Home Assistant:
+
+```text
+Dockerhand by JigSawFr
+```
+
+### Beta channel
+
+Best for testing wrapper changes before stable promotion.
+
+Add this repository URL manually:
 
 ```text
 https://github.com/JigSawFr/dockhand-ha-addon#dev
 ```
 
-Beta builds use versions like `1.0.41.2-beta.1` and GHCR tags `beta` plus the exact version. See [Release channels](docs/channels.md).
+Repository name in Home Assistant:
 
-### Manual install
+```text
+Dockerhand Beta by JigSawFr
+```
 
-1. Open Home Assistant.
-2. Go to **Settings → Add-ons → Add-on Store**.
-3. Open the ⋮ menu → **Repositories**.
-4. Add this repository URL:
+Beta versions look like `1.0.41.2-beta.1` and publish GHCR tags `beta` plus the exact version. See [Release channels](docs/channels.md).
 
-   ```text
-   https://github.com/JigSawFr/dockhand-ha-addon
-   ```
+## First start
 
-5. Install **Dockhand**.
+1. Install **Dockhand** from the selected repository.
+2. Open the add-on page.
+3. Disable **Protection Mode**.
+4. Start the add-on.
+5. Open Dockhand from the Home Assistant sidebar or Ingress button.
+6. Add your first Docker environment from Dockhand settings.
 
-## Running Dockhand
+Useful Dockhand setting: enable automatic image pruning under environment **Updates** to reduce image buildup.
 
-> **Protection Mode must be disabled**
->
-> Dockhand requires access to the Docker socket. Disable **Protection Mode** in the add-on settings before starting it.
+## Security, plainly
 
-Security note: disabling Protection Mode gives this add-on privileged access to Docker, similar to Portainer. Only run it if you trust the workload.
+Dockhand manages Docker. This add-on therefore needs access to the Docker socket and requires **Protection Mode disabled**.
 
-Read the full security model before exposing this add-on to other Home Assistant users: [docs/security-model.md](docs/security-model.md).
+That is powerful access. Treat it like Portainer:
 
-Dockhand stores its SQLite database and app data in `/data`, mapped to persistent Home Assistant add-on storage. Data survives restarts and updates.
+- install it only on Home Assistant systems you administer;
+- keep access through Home Assistant Ingress where possible;
+- do not expose the optional direct port to the public internet;
+- read the [Security model](docs/security-model.md) before sharing access with other users.
 
-## Access
+Defense-in-depth included by the wrapper:
 
-Dockhand is exposed through Home Assistant Ingress. Direct access outside Home Assistant is disabled by default.
+- Home Assistant's admin-only panel default;
+- optional direct port disabled by default;
+- Docker `HEALTHCHECK` using the packaged healthcheck helper;
+- Ingress streaming support for long-lived UI flows;
+- packaged AppArmor profile validation on beta before stable promotion;
+- Home Assistant backup hooks for the SQLite database.
 
-## First use
+## Channels at a glance
 
-To manage the local Home Assistant Docker environment:
+| Channel | Home Assistant repository | Branch | Versions | GHCR tags |
+|---|---|---:|---|---|
+| Stable | `Dockerhand by JigSawFr` | `main` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |
+| Beta | `Dockerhand Beta by JigSawFr` | `dev` | `X.Y.Z.N-beta.M` | `<version>`, `beta` |
 
-1. Open Dockhand.
-2. Go to settings.
-3. Add an environment.
-4. Use the local Docker socket option when available.
-
-Worthwhile setting: enable automatic image pruning under the environment **Updates** settings to reduce disk pressure on Home Assistant OS.
+Stable users do not receive beta builds unless they explicitly add the `#dev` repository URL.
 
 ## Versioning
 
-The add-on version tracks the bundled Dockhand image version where practical.
+The add-on version stays anchored to the bundled Dockhand version.
 
 Example:
 
-- Dockhand image: `fnsys/dockhand:v1.0.41`
-- Add-on version: `1.0.41`
-- Wrapper-only revision: `1.0.41.1`
+| Surface | Example |
+|---|---|
+| Bundled Dockhand image | `fnsys/dockhand:v1.0.41` |
+| First stable wrapper | `1.0.41` |
+| Stable wrapper-only fix | `1.0.41.1` |
+| Beta wrapper preview | `1.0.41.2-beta.1` |
 
-The add-on uses Home Assistant-compatible numeric revisions anchored to the bundled Dockhand version. Wrapper-only fixes use `X.Y.Z.N`: the bundled Dockhand version stays visible while Home Assistant can still sort the release as an update. `+` build metadata is not used for release/package tags because Docker tags do not allow `+`.
-
-## Updates
-
-This repository is maintained independently from the original wrapper repository. Dependency automation tracks:
-
-- Dockhand image tags from `fnsys/dockhand`
-- Home Assistant base images
-- GitHub Actions
-
-Releases are published from SemVer tags after CI validation. See [docs/release.md](docs/release.md).
+Wrapper-only stable updates use numeric revisions (`X.Y.Z.N`) so Home Assistant can sort them as updates from `X.Y.Z`.
 
 ## Documentation
 
-- [Release channels](docs/channels.md)
 - [Installation](docs/installation.md)
+- [Release channels](docs/channels.md)
 - [Security model](docs/security-model.md)
 - [Architecture](docs/architecture.md)
 - [Migration](docs/migration.md)
@@ -110,15 +143,9 @@ Releases are published from SemVer tags after CI validation. See [docs/release.m
 
 This project is based on the Apache-2.0 licensed work from [`alexschwantes/home-assistant-dockhand-app`](https://github.com/alexschwantes/home-assistant-dockhand-app), adapted for independent community maintenance.
 
-Dockhand itself is developed by [Finsys](https://github.com/Finsys/dockhand).
+Dockhand itself is developed by [Finsys](https://github.com/Finsys/dockhand). This repository packages the upstream application; it does not replace upstream Dockhand licensing, privacy, or support terms.
 
 ## Known issues
 
 - **Authentication page refresh:** after enabling Dockhand authentication, you may need to refresh the page once to see the login screen.
-- **Ingress stream disconnect noise:** Home Assistant Supervisor logs may show transient stream disconnects when navigating away from long-lived Dockhand pages. This is usually benign.
-
-[aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
-[amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
-[releases-shield]: https://img.shields.io/github/release/JigSawFr/dockhand-ha-addon.svg
-[releases]: https://github.com/JigSawFr/dockhand-ha-addon/releases
-[project-stage-shield]: https://img.shields.io/badge/project%20stage-development-yellowgreen.svg
+- **Transient Ingress stream disconnects:** Home Assistant Supervisor logs may show disconnects when leaving long-lived Dockhand pages. This is usually benign.

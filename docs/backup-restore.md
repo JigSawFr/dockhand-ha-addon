@@ -39,6 +39,8 @@ The add-on can create lightweight SQLite backups during startup when enabled.
 
 These are not a replacement for Home Assistant backups. They are a convenience for quick rollback.
 
+Home Assistant backup integration also runs a SQLite WAL checkpoint before the backup when `/data/db/dockhand.db` exists. Local startup backups matching `/data/backups/*.sqlite` are excluded from Home Assistant backups so full backups do not grow with nested rollback copies.
+
 ## Sharing backups
 
 Never share raw backups publicly. They may contain:

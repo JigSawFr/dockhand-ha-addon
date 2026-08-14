@@ -9,7 +9,7 @@ redact() {
         -e 's#((token|secret|password|passwd|api[_-]?key)[[:space:]]+)[^[:space:]]+#\1[REDACTED]#Ig'
 }
 
-echo "Dockhand Home Assistant Add-on diagnostics"
+echo "Dockerhand by JigSawFr diagnostics"
 echo "generated_at=$(date -Iseconds)"
 echo "addon_version=${BUILD_VERSION:-unknown}"
 echo "arch=${BUILD_ARCH:-unknown}"

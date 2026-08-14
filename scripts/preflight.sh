@@ -39,8 +39,10 @@ if errors:
 print('preflight=ok')
 PY
 
-if command -v docker >/dev/null 2>&1; then
+if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
     docker build -t dockhand-ha-addon:smoke ./dockhand
+elif command -v docker >/dev/null 2>&1; then
+    echo 'docker daemon unavailable; skipping image build'
 else
     echo 'docker unavailable; skipping image build'
 fi
