@@ -102,14 +102,16 @@ Defense-in-depth included by the wrapper:
 - Docker `HEALTHCHECK` using the packaged healthcheck helper;
 - Ingress streaming support for long-lived UI flows;
 - packaged AppArmor profile validation on beta before stable promotion;
-- Home Assistant backup hooks for the SQLite database.
+- Home Assistant backup hooks for the SQLite database;
+- safe support bundle generation with redaction tests;
+- release dry-run, SBOM/provenance, and image signing for release automation.
 
 ## Channels at a glance
 
-| Channel | Home Assistant repository | Branch | Versions | GHCR tags |
-|---|---|---:|---|---|
-| Stable | `Dockerhand by JigSawFr` | `main` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |
-| Beta | `Dockerhand Beta by JigSawFr` | `dev` | `X.Y.Z.N-beta.M` | `<version>`, `beta` |
+| Channel | Home Assistant repository | Branch | Current version | Versions | GHCR tags |
+|---|---|---:|---:|---|---|
+| Stable | `Dockerhand by JigSawFr` | `main` | `1.0.41.1` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |
+| Beta | `Dockerhand Beta by JigSawFr` | `dev` | `1.0.41.2-beta.4` | `X.Y.Z.N-beta.M` | `<version>`, `beta` |
 
 Stable users do not receive beta builds unless they explicitly add the `#dev` repository URL.
 
@@ -136,6 +138,8 @@ Wrapper-only stable updates use numeric revisions (`X.Y.Z.N`) so Home Assistant 
 - [Architecture](docs/architecture.md)
 - [Migration](docs/migration.md)
 - [Backup and restore](docs/backup-restore.md)
+- [Support bundle](docs/support-bundle.md)
+- [Supply-chain posture](docs/supply-chain.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Release process](docs/release.md)
 

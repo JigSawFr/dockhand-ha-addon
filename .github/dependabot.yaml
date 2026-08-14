@@ -2,13 +2,21 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
+    target-branch: "dev"
     schedule:
       interval: weekly
       time: "06:00"
       timezone: "Europe/Paris"
+    labels:
+      - dependencies
+      - github-actions
   - package-ecosystem: "docker"
     directory: "/dockhand"
+    target-branch: "dev"
     schedule:
       interval: weekly
       time: "06:15"
       timezone: "Europe/Paris"
+    labels:
+      - dependencies
+      - docker

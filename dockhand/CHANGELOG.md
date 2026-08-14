@@ -1,3 +1,15 @@
+## 1.0.41.2-beta.4
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Published from the `dev` channel for testing before a stable release.
+- Add a real Docker-based Home Assistant Ingress E2E smoke test.
+- Add Renovate and Dependabot automation targeting `dev` for Docker images and GitHub Actions.
+- Pin moving Home Assistant workflow actions and add release SBOM/provenance plus cosign signing.
+- Add regression tests for startup SQLite backups, retention, diagnostics redaction, and release dry-run metadata.
+- Add `dockhand-support-bundle` for reviewed redacted diagnostics files.
+- Add stable/beta matrix details, support/supply-chain docs, and focused GitHub issue templates.
+- Does not change the bundled Dockhand application version.
+
 ## 1.0.41.2-beta.3
 
 - Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
