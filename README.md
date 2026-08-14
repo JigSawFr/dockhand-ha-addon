@@ -145,7 +145,7 @@ This project is based on the Apache-2.0 licensed work from [`alexschwantes/home-
 
 Dockhand itself is developed by [Finsys](https://github.com/Finsys/dockhand). This repository packages the upstream application; it does not replace upstream Dockhand licensing, privacy, or support terms.
 
-## Known issues
+## Resolved / mitigated issues
 
-- **Authentication page refresh:** after enabling Dockhand authentication, you may need to refresh the page once to see the login screen.
-- **Transient Ingress stream disconnects:** Home Assistant Supervisor logs may show disconnects when leaving long-lived Dockhand pages. This is usually benign.
+- **Authentication enable flow:** the Home Assistant ingress shim now redirects to Dockhand login automatically after authentication is enabled successfully.
+- **Ingress stream disconnect noise:** `ingress_stream: true` and unbuffered stream proxying are enabled. A one-off stream close while navigating away from live views can still be benign.

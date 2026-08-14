@@ -2,6 +2,11 @@
 set -euo pipefail
 
 python3 -m py_compile scripts/*.py
+if command -v node >/dev/null 2>&1; then
+    node scripts/test-ingress-shim.js
+else
+    echo 'node unavailable; skipping ingress shim behavior test'
+fi
 python3 scripts/check-version-sync.py
 python3 scripts/check-public-privacy.py
 python3 scripts/check-addon-metadata.py

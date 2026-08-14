@@ -1,3 +1,13 @@
+## 1.0.41.2-beta.3
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Published from the `dev` channel for testing before a stable release.
+- Redirect automatically to Dockhand login after authentication is enabled successfully through Home Assistant Ingress.
+- Add a regression test for ingress shim auth redirect and path rewriting behavior.
+- Move previous auth refresh and stream disconnect notes out of the active Known Issues section.
+- Replace the stale add-on-local documentation page with pointers to the current repository docs.
+- Does not change the bundled Dockhand application version.
+
 ## 1.0.41.2-beta.2
 
 - Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.

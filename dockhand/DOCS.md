@@ -1,61 +1,13 @@
-# Home Assistant App: Dockhand
+# Dockerhand by JigSawFr
 
-[Dockhand](https://github.com/Finsys/dockhand) is a modern, lightweight Docker management UI - a streamlined alternative to Portainer. Manage your containers, images, volumes, and networks directly from your Home Assistant sidebar.
+This add-on packages [Dockhand](https://github.com/Finsys/dockhand) for Home Assistant OS / Supervisor.
 
-![Dockhand Environment in Home Assistant](https://github.com/user-attachments/assets/666579ea-7e62-4c97-805b-531531225a5f)
-![Dockhand Containers in Home Assistant](https://github.com/user-attachments/assets/e8405ec3-55e6-4f6a-9f6e-f5f6f61f5e3e)
+For current documentation, use the repository-level guides:
 
-## Installation
+- [README](../README.md)
+- [Installation](../docs/installation.md)
+- [Release channels](../docs/channels.md)
+- [Security model](../docs/security-model.md)
+- [Troubleshooting](../docs/troubleshooting.md)
 
-1. Add this repository to your Home Assistant instance via **Settings -> Apps -> Install app -> ⋮ -> Repositories**.
-1. Click **+ Add** and paste the repository URL `https://github.com/alexschwantes/home-assistant-dockhand-app` into the field and click **Add**
-1. Find **Dockhand** in the App store and click **Install**.
-
-## Running Dockhand App
-
-> **⚠️ Protection Mode must be disabled**
->
-> Dockhand requires direct access to the Docker socket (`/var/run/docker.sock`).
-> You **must disable "Protection Mode"** in the app settings before starting Dockhand.
-> Go to **Settings → Apps → Dockhand** and toggle off "Protection Mode".
-> Failure to do so will prevent the app from starting.
-
-> **Security note:** Disabling Protection Mode grants the container full access to the Docker
-> daemon. This is the same security posture required by Portainer. Only disable if you trust
-> the workload running in this container.
-
-Dockhand stores its SQLite database and application data in the `/data` directory, which is
-mapped to persistent Home Assistant storage. Your data survives app restarts and updates.
-
-## Accessing Dockhand
-
-Dockhand can be accessed via the Dockhand App page, or you can enable the app setting to "Show in sidebar" which will add a new menu to the sidebar:
-
-<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/refs/heads/6.x/svgs/brands/docker.svg" width="20" height="20">&nbsp;&nbsp;&nbsp;**Dockhand**
-
-Direct access to Dockhand outside of Home Assistance is disabled.
-
-> **Note:** Direct access to Dockhand outside of Home Assistance is disabled.
-
-## First Use / Configuration
-
-You first need to add the local Home Assistant Environment:
-
-1. From the Dockhand Dashboard click go to settings
-1. Click **+ Add environment**
-1. Enter a **name** and click **+ Add**
-
-> **Worthwhile setting:** Under the **Updates** tab for the environment, enable **automatic image pruning**. This will schedule a clean up of old images to prevent Home Assistant running out of space.
-
-## Known Issues
-
-- **MINOR: Need to manually refresh page after enabling Dockhand authentication:**
-
-    Should you wish to enable user authentication within Dockhand, you are not immediately redirected to the login page. You will need to refresh the page to see the Dockhand login screen. This only happens the first time when enabling authentication.
-
-- **MINOR: Ingress stream disconnect noise when navigating between pages**:
-
-    Long-lived API stream requests can log transient disconnects when a page is closed, refreshed, or changed. This results in the following Supervisor Logs:
-    - `Stream error with http://<addon-ip>:8099/api/...: Cannot write to closing transport`
-
-    This is benign as the UI remains responsive and streams reconnect when returning to the page.
+This file is kept as a short add-on-local pointer for users browsing the `dockhand/` directory directly.

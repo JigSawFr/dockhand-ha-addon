@@ -30,13 +30,13 @@ Try:
 3. Clear the browser tab and reopen from Home Assistant sidebar.
 4. Check logs for nginx errors.
 
-If Dockhand authentication was enabled, a refresh may be required after redirects.
+If the page appeared immediately after enabling Dockhand authentication, current beta builds should redirect to the login page automatically. If the browser still shows stale content, refresh once and reopen from the Home Assistant sidebar.
 
 ## Terminal or live logs disconnect
 
-Dockhand uses WebSockets and long-lived streams. Home Assistant Ingress can log transient disconnects when navigating away from live views.
+Dockhand uses WebSockets and long-lived streams. The add-on enables Home Assistant ingress streaming and disables nginx buffering for Dockhand stream endpoints.
 
-Usually benign symptoms:
+Usually benign symptoms if you leave a live page:
 
 - stream closes when leaving a page
 - logs reconnect after reopening
