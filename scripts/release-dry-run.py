@@ -44,8 +44,22 @@ def release_notes(version: str) -> str:
     raise SystemExit(f"Missing changelog section for {version}")
 
 
-def run_check_version(tag: str) -> None:
-    subprocess.run([sys.executable, "scripts/check-version-sync.py", "--tag", tag], cwd=ROOT, check=True)
+def run_check_version(tag: str, quiet: bool = False) -> None:
+    if not quiet:
+        subprocess.run([sys.executable, "scripts/check-version-sync.py", "--tag", tag], cwd=ROOT, check=True)
+        return
+
+    result = subprocess.run(
+        [sys.executable, "scripts/check-version-sync.py", "--tag", tag],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        sys.stderr.write(result.stdout)
+        sys.stderr.write(result.stderr)
+        raise SystemExit(result.returncode)
 
 
 def output_for(version: str) -> dict[str, object]:
@@ -90,7 +104,7 @@ def main() -> int:
 
     version = (args.tag[1:] if args.tag and args.tag.startswith("v") else args.tag) or config_version()
     tag = f"v{version}"
-    run_check_version(tag)
+    run_check_version(tag, quiet=args.json)
     values = output_for(version)
 
     if args.github_output:
