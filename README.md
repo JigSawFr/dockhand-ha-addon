@@ -80,7 +80,7 @@ Beta versions look like `1.0.41.2-beta.1` and publish GHCR tags `beta` plus the 
 3. Disable **Protection Mode**.
 4. Start the add-on.
 5. Open Dockhand from the Home Assistant sidebar or Ingress button.
-6. Add your first Docker environment from Dockhand settings.
+6. The add-on creates a default **Home Assistant** Docker environment automatically when no equivalent `/var/run/docker.sock` environment exists.
 
 Useful Dockhand setting: enable automatic image pruning under environment **Updates** to reduce image buildup.
 
@@ -111,9 +111,17 @@ Defense-in-depth included by the wrapper:
 | Channel | Home Assistant repository | Branch | Current version | Versions | GHCR tags |
 |---|---|---:|---:|---|---|
 | Stable | `Dockerhand by JigSawFr` | `main` | `1.0.41.1` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |
-| Beta | `Dockerhand Beta by JigSawFr` | `dev` | `1.0.41.2-beta.4` | `X.Y.Z.N-beta.M` | `<version>`, `beta` |
+| Beta | `Dockerhand Beta by JigSawFr` | `dev` | `1.0.41.2-beta.5` | `X.Y.Z.N-beta.M` | `<version>`, `beta` |
 
 Stable users do not receive beta builds unless they explicitly add the `#dev` repository URL.
+
+## Add-on options
+
+| Option | Default | Purpose |
+|---|---:|---|
+| `seed_home_assistant_environment` | `true` | Create a default `Home Assistant` Docker environment for `/var/run/docker.sock` when no equivalent environment exists. |
+| `auto_backup_on_start` | `true` | Create a lightweight SQLite backup during startup. |
+| `backup_retention` | `5` | Keep the newest local startup backups. |
 
 ## Versioning
 

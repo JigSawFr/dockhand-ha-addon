@@ -7,7 +7,7 @@ Dockerhand uses two Home Assistant repository channels: **stable** for normal us
 | Channel | Repository name in Home Assistant | URL | Branch | Current version | Versions | GHCR tags | GitHub release |
 |---|---|---|---:|---:|---|---|---|
 | Stable | `Dockerhand by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon` | `main` | `1.0.41.1` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` | regular |
-| Beta | `Dockerhand Beta by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon#dev` | `dev` | `1.0.41.2-beta.4` | `X.Y.Z.N-beta.M` | `<version>`, `beta` | prerelease |
+| Beta | `Dockerhand Beta by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon#dev` | `dev` | `1.0.41.2-beta.5` | `X.Y.Z.N-beta.M` | `<version>`, `beta` | prerelease |
 
 Home Assistant supports installing a repository branch by appending `#branch` to the repository URL. Stable users stay on `main`; beta users explicitly opt into `#dev`.
 
@@ -31,7 +31,7 @@ https://github.com/JigSawFr/dockhand-ha-addon#dev
 
 Beta releases are published from `dev` only. They update the GHCR `beta` tag, but never `latest`.
 
-Current beta additions over stable include the hardened Home Assistant Ingress flow, runtime regression tests, backup/diagnostics tests, release dry-run checks, dependency-update automation, and supply-chain attestations/signing for future releases.
+Current beta additions over stable include the default Home Assistant Docker environment seed, hardened Home Assistant Ingress flow, runtime regression tests, backup/diagnostics tests, release dry-run checks, dependency-update automation, and supply-chain attestations/signing for future releases.
 
 ## Version example
 

@@ -46,12 +46,18 @@ See [Release channels](channels.md) for the full stable/beta policy.
 
 ## First Docker environment
 
-Inside Dockhand:
+On startup, the add-on creates a default **Home Assistant** Docker environment automatically when no equivalent `/var/run/docker.sock` environment exists.
 
-1. Open settings or environments.
-2. Add an environment.
-3. Use the local Docker socket option when available.
-4. Save and verify the dashboard loads containers/images.
+Default values:
+
+| Field | Value |
+|---|---|
+| Name | `Home Assistant` |
+| Label | `ha` |
+| Connection type | Unix socket |
+| Socket path | `/var/run/docker.sock` |
+
+Disable this with the add-on option `seed_home_assistant_environment: false` if you prefer to create environments manually.
 
 Useful setting: enable automatic image pruning in Dockhand's environment **Updates** settings if you want to reduce unused image buildup.
 

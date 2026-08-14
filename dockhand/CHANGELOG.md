@@ -1,3 +1,12 @@
+## 1.0.41.2-beta.5
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Published from the `dev` channel for testing before a stable release.
+- Create a default `Home Assistant` Docker environment on startup when no equivalent `/var/run/docker.sock` environment exists.
+- Add `seed_home_assistant_environment` add-on option, enabled by default, for users who prefer manual environment creation.
+- Add SQLite regression tests for the default environment seed and cover it in smoke/preflight checks.
+- Does not change the bundled Dockhand application version.
+
 ## 1.0.41.2-beta.4
 
 - Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.

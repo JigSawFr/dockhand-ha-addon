@@ -3,6 +3,7 @@ set -euo pipefail
 
 python3 -m py_compile scripts/*.py
 scripts/test-backup-db.sh
+scripts/test-seed-ha-environment.sh
 scripts/test-diagnostics-redaction.sh
 scripts/release-dry-run.py --json >/dev/null
 if command -v node >/dev/null 2>&1; then
