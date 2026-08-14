@@ -47,10 +47,17 @@ Wrapper-only patch:
 python3 scripts/bump-version.py 1.0.41.1 --dockhand-version 1.0.41 --wrapper-only
 ```
 
+Beta wrapper preview:
+
+```bash
+python3 scripts/bump-version.py 1.0.41.2-beta.1 --dockhand-version 1.0.41 --wrapper-only
+```
+
 Rules:
 
 - Dockhand bumps use the exact upstream `MAJOR.MINOR.PATCH` version.
-- Wrapper-only fixes use `MAJOR.MINOR.PATCH.N` on the same Dockhand base.
+- Stable wrapper-only fixes use `MAJOR.MINOR.PATCH.N` on the same Dockhand base.
+- Beta wrapper previews use `MAJOR.MINOR.PATCH.N-beta.M` on the `dev` branch.
 - Use the same string for config version, Git tag, GitHub Release, and GHCR tag.
 - Use numeric wrapper revisions `X.Y.Z.N`; do not use `+` build metadata.
 - Add or update the matching `dockhand/CHANGELOG.md` section.
@@ -68,7 +75,7 @@ Before opening a PR:
 
 ## Release checklist
 
-Before tagging `vX.Y.Z` or `vX.Y.Z.N`:
+Before tagging `vX.Y.Z`, `vX.Y.Z.N`, or `vX.Y.Z.N-beta.M`:
 
 - [ ] Version guard is green.
 - [ ] Privacy guard is green.
@@ -76,4 +83,4 @@ Before tagging `vX.Y.Z` or `vX.Y.Z.N`:
 - [ ] Smoke test is green.
 - [ ] Builder is green.
 - [ ] GHCR publish permissions are confirmed.
-- [ ] Matching changelog section exists, e.g. `## X.Y.Z.N`.
+- [ ] Matching changelog section exists, e.g. `## X.Y.Z.N` or `## X.Y.Z.N-beta.M`.

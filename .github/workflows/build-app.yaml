@@ -13,6 +13,9 @@ on:
         required: false
         type: string
         default: ""
+    secrets:
+      GHCR_PAT:
+        required: false
 
 jobs:
   prepare:
@@ -72,16 +75,16 @@ jobs:
         run: |
           if [[ -n "${INPUT_IMAGE_TAGS}" ]]; then
             {
-              echo "image_tags<<EOF"
+              echo "image_tags<<DOCKHAND_BUILD_IMAGE_TAGS_EOF"
               echo "${INPUT_IMAGE_TAGS}"
-              echo "EOF"
+              echo "DOCKHAND_BUILD_IMAGE_TAGS_EOF"
             } >> "$GITHUB_OUTPUT"
           else
             {
-              echo "image_tags<<EOF"
+              echo "image_tags<<DOCKHAND_BUILD_IMAGE_TAGS_EOF"
               echo "${VERSION}"
               echo "latest"
-              echo "EOF"
+              echo "DOCKHAND_BUILD_IMAGE_TAGS_EOF"
             } >> "$GITHUB_OUTPUT"
           fi
 
@@ -106,7 +109,7 @@ jobs:
         uses: home-assistant/builder/actions/build-image@2026.03.2
         with:
           arch: ${{ matrix.arch }}
-          container-registry-password: ${{ inputs.publish && github.token || '' }}
+          container-registry-password: ${{ inputs.publish && secrets.GHCR_PAT || '' }}
           context: "./${{ inputs.app }}"
           image: ${{ matrix.image }}
           image-tags: ${{ needs.prepare.outputs.image_tags }}
@@ -131,7 +134,7 @@ jobs:
         uses: home-assistant/builder/actions/publish-multi-arch-manifest@2026.03.2
         with:
           architectures: ${{ needs.prepare.outputs.architectures }}
-          container-registry-password: ${{ github.token }}
+          container-registry-password: ${{ secrets.GHCR_PAT }}
           image-name: ${{ needs.prepare.outputs.image_name }}
           image-tags: ${{ needs.prepare.outputs.image_tags }}
           registry-prefix: ${{ needs.prepare.outputs.registry_prefix }}

@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_VERSION_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
-ADDON_VERSION_RE = re.compile(r"^(?P<base>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))(?:\.(?P<revision>[1-9]\d*))?$")
+ADDON_VERSION_RE = re.compile(r"^(?P<base>(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))(?:\.(?P<revision>[1-9]\d*))?(?:-beta\.(?P<beta>[1-9]\d*))?$")
 DOCKHAND_FROM_RE = re.compile(r"^FROM\s+fnsys/dockhand:v(?P<version>[^\s]+)\s+AS\s+dockhand\s*$", re.M)
 BASE_FROM_RE = re.compile(r"^FROM\s+(?P<image>ghcr\.io/home-assistant/base-debian:[^\s]+)\s*$", re.M)
 CONFIG_VERSION_RE = re.compile(r'^version:\s+"(?P<version>[^"]+)"\s*$', re.M)
@@ -30,13 +30,18 @@ def require(condition: bool, message: str, errors: list[str]) -> None:
 def parse_version_from_config(errors: list[str]) -> str:
     cfg = read("dockhand/config.yaml")
     match = CONFIG_VERSION_RE.search(cfg)
-    require(match is not None, "dockhand/config.yaml must contain version: \"X.Y.Z[.N]\"", errors)
+    require(match is not None, "dockhand/config.yaml must contain version: \"X.Y.Z[.N][-beta.M]\"", errors)
     return match.group("version") if match else ""
 
 
 def addon_base(version: str) -> str:
     match = ADDON_VERSION_RE.fullmatch(version)
     return match.group("base") if match else ""
+
+
+def is_beta(version: str) -> bool:
+    match = ADDON_VERSION_RE.fullmatch(version)
+    return bool(match and match.group("beta"))
 
 
 def main() -> int:
@@ -53,7 +58,7 @@ def main() -> int:
     addon_match = ADDON_VERSION_RE.fullmatch(addon_version)
     require(
         bool(addon_match),
-        f"add-on version must be Dockhand version X.Y.Z or wrapper revision X.Y.Z.N: {addon_version!r}",
+        f"add-on version must be Dockhand version X.Y.Z, wrapper revision X.Y.Z.N, or beta X.Y.Z.N-beta.M: {addon_version!r}",
         errors,
     )
 
@@ -76,6 +81,12 @@ def main() -> int:
             f"add-on base version {addon_base(addon_version)!r} must match bundled Dockhand version {dockhand_version!r}",
             errors,
         )
+        if is_beta(addon_version):
+            require(
+                bool(addon_match.group("revision")),
+                f"beta add-on versions must target a wrapper revision X.Y.Z.N-beta.M: {addon_version!r}",
+                errors,
+            )
 
     headers = [m.group("version") for m in CHANGELOG_HEADER_RE.finditer(changelog)]
     require(addon_version in headers, f"dockhand/CHANGELOG.md must contain ## {addon_version}", errors)
@@ -114,6 +125,7 @@ def main() -> int:
     print(f"addon_version={addon_version}")
     print(f"dockhand_version={dockhand_version}")
     print(f"image={EXPECTED_IMAGE}")
+    print(f"channel={'beta' if is_beta(addon_version) else 'stable'}")
     return 0
 
 

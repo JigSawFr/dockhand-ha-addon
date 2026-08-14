@@ -19,9 +19,19 @@ This repository packages Dockhand for Home Assistant OS / Supervisor with Ingres
 
 ## Installation
 
-### Automatic install
+### Stable install
 
 [![Open your Home Assistant instance and show the add-on repository dialog with this repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_addon/?repository_url=https%3A%2F%2Fgithub.com%2FJigSawFr%2Fdockhand-ha-addon&addon=dockhand)
+
+### Beta install
+
+For prerelease testing, add the `dev` branch repository URL manually:
+
+```text
+https://github.com/JigSawFr/dockhand-ha-addon#dev
+```
+
+Beta builds use versions like `1.0.41.2-beta.1` and GHCR tags `beta` plus the exact version. See [Release channels](docs/channels.md).
 
 ### Manual install
 
@@ -87,6 +97,7 @@ Releases are published from SemVer tags after CI validation. See [docs/release.m
 
 ## Documentation
 
+- [Release channels](docs/channels.md)
 - [Installation](docs/installation.md)
 - [Security model](docs/security-model.md)
 - [Architecture](docs/architecture.md)

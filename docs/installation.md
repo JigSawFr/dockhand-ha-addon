@@ -1,12 +1,22 @@
 # Installation
 
-## Add the repository
+## Add the stable repository
 
 Use the Home Assistant button from the README, or add the repository manually:
 
 ```text
 https://github.com/JigSawFr/dockhand-ha-addon
 ```
+
+## Optional beta repository
+
+For prerelease testing, add the `dev` branch repository URL manually:
+
+```text
+https://github.com/JigSawFr/dockhand-ha-addon#dev
+```
+
+The beta channel publishes versions such as `1.0.41.2-beta.1`. It is intended for validating wrapper changes before they are promoted to the stable `main` channel. See [Release channels](channels.md).
 
 Home Assistant path:
 
@@ -46,7 +56,7 @@ Do not expose this port directly to the public internet.
 
 Home Assistant shows add-on updates when a new release is published.
 
-Release tags use `vX.Y.Z` for Dockhand bumps and `vX.Y.Z.N` for wrapper-only revisions on the same Dockhand base.
+Release tags use `vX.Y.Z` for Dockhand bumps, `vX.Y.Z.N` for stable wrapper-only revisions, and `vX.Y.Z.N-beta.M` for beta wrapper previews on the `dev` channel.
 
 ## Uninstalling
 
