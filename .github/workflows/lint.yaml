@@ -40,6 +40,7 @@ jobs:
           scripts/test-seed-ha-environment.sh
           scripts/test-diagnostics-redaction.sh
           node scripts/test-ingress-shim.js
+          python3 scripts/test-release-automation.py
           scripts/release-dry-run.py --json
 
   find:

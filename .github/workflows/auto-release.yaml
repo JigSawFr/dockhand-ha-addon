@@ -1,0 +1,106 @@
+name: Auto release
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: auto-release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  dispatch-release:
+    name: Dispatch release workflow when version is unreleased
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Determine release channel and version
+        id: release
+        run: |
+          set -euo pipefail
+          branch="${GITHUB_REF_NAME}"
+          version=$(python3 - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('dockhand/config.yaml').read_text()
+          match = re.search(r'^version:\s+"([^"]+)"\s*$', text, re.M)
+          if not match:
+              raise SystemExit('Could not parse dockhand/config.yaml version')
+          print(match.group(1))
+          PY
+          )
+
+          case "${branch}" in
+            dev)
+              channel=beta
+              if [[ "${version}" != *-beta.* ]]; then
+                echo "dev must contain a beta version before automatic release: ${version}"
+                exit 1
+              fi
+              ;;
+            main)
+              channel=stable
+              if [[ "${version}" == *-beta.* ]]; then
+                echo "main cannot automatically release a beta version: ${version}"
+                exit 1
+              fi
+              ;;
+            *)
+              echo "Auto release only supports main/dev, got ${branch}"
+              exit 1
+              ;;
+          esac
+
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${version}" >> "$GITHUB_OUTPUT"
+          echo "channel=${channel}" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if GitHub Release already exists
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "released=true" >> "$GITHUB_OUTPUT"
+            echo "Release ${TAG} already exists; nothing to do."
+          else
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate release candidate
+        if: steps.existing.outputs.released != 'true'
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/*.py
+          python3 scripts/test-release-automation.py
+          scripts/test-backup-db.sh
+          scripts/test-seed-ha-environment.sh
+          scripts/test-diagnostics-redaction.sh
+          node scripts/test-ingress-shim.js
+          python3 scripts/check-version-sync.py --tag "${{ steps.release.outputs.tag }}"
+          python3 scripts/check-public-privacy.py
+          python3 scripts/check-addon-metadata.py
+          scripts/release-dry-run.py --tag "${{ steps.release.outputs.tag }}" --json >/dev/null
+
+      - name: Dispatch release workflow
+        if: steps.existing.outputs.released != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          gh workflow run release.yaml --ref "${GITHUB_REF_NAME}" -f version="${VERSION}"
+          echo "release_dispatch=ok version=${VERSION} ref=${GITHUB_REF_NAME}"

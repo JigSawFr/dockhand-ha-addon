@@ -60,7 +60,14 @@ bash scripts/preflight.sh
 
 ## Stable release
 
-After CI is green on `main`:
+Stable releases are normally created by merging a stable promotion PR.
+
+1. Let the beta channel validate on `dev`.
+2. Run the **Promote stable** workflow from GitHub Actions.
+3. Review and merge the generated PR into `main`.
+4. The **Auto release** workflow dispatches `release.yaml` for the stable version.
+
+Manual fallback after CI is green on `main`:
 
 ```bash
 git tag vX.Y.Z.N
@@ -81,14 +88,17 @@ The stable release workflow:
 
 ## Beta release
 
-After CI is green on `dev`:
+When Renovate detects a new upstream `fnsys/dockhand` image, it opens a PR against `dev`.
 
-```bash
-git tag vX.Y.Z.N-beta.M
-git push origin dev vX.Y.Z.N-beta.M
-```
+The **Normalize Dockhand update** workflow updates the add-on metadata around that PR:
 
-The beta release workflow:
+1. computes the next beta wrapper version, e.g. `1.0.42.1-beta.1`
+2. keeps the repository URL on the `#dev` channel
+3. keeps `Dockhand Beta by JigSawFr` branding and `stage: experimental`
+4. updates the changelog and channel matrix
+5. reruns the version, privacy, metadata, and release dry-run checks
+
+After the PR is merged to `dev`, **Auto release** validates the branch and dispatches `release.yaml` for the beta version. The release workflow then:
 
 1. validates version sync
 2. validates privacy guard
@@ -99,6 +109,13 @@ The beta release workflow:
 7. creates a GitHub prerelease from the changelog section
 
 Beta releases never publish `latest`.
+
+Manual fallback after CI is green on `dev`:
+
+```bash
+git tag vX.Y.Z.N-beta.M
+git push origin dev vX.Y.Z.N-beta.M
+```
 
 ## Post-release verification
 

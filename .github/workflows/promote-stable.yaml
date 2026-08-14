@@ -1,0 +1,161 @@
+name: Promote stable
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: "Beta branch to promote"
+        required: true
+        default: dev
+        type: string
+      auto_merge:
+        description: "Enable auto-merge for the promotion PR"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+concurrency:
+  group: promote-stable
+  cancel-in-progress: false
+
+jobs:
+  create-pr:
+    name: Create stable promotion PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out stable base
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Prepare stable branch from beta
+        id: promote
+        env:
+          SOURCE_BRANCH: ${{ inputs.source_branch }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main:refs/remotes/origin/main "${SOURCE_BRANCH}:refs/remotes/origin/${SOURCE_BRANCH}"
+          git checkout -B promote/stable-auto origin/main
+          git rm -r --quiet .
+          git checkout "origin/${SOURCE_BRANCH}" -- .
+
+          beta_version=$(python3 - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('dockhand/config.yaml').read_text()
+          match = re.search(r'^version:\s+"([^"]+)"\s*$', text, re.M)
+          if not match:
+              raise SystemExit('Could not parse dockhand/config.yaml version')
+          print(match.group(1))
+          PY
+          )
+          dockhand_version=$(python3 - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('dockhand/Dockerfile').read_text()
+          match = re.search(r'^FROM\s+fnsys/dockhand:v([^\s]+)\s+AS\s+dockhand$', text, re.M)
+          if not match:
+              raise SystemExit('Could not parse Dockhand version')
+          print(match.group(1))
+          PY
+          )
+
+          python3 scripts/release-plan.py \
+            --channel stable \
+            --current-version "${beta_version}" \
+            --dockhand-version "${dockhand_version}" \
+            --github-output "$GITHUB_OUTPUT"
+
+          version=$(awk -F= '$1 == "version" { print $2 }' "$GITHUB_OUTPUT" | tail -1)
+          branch="promote/stable-${version}"
+          git checkout -B "${branch}"
+
+          python3 scripts/prepare-release-channel.py \
+            --channel stable \
+            --version "${version}" \
+            --dockhand-version "${dockhand_version}" \
+            --summary "Promote tested beta ${beta_version} to stable."
+
+          echo "branch=${branch}" >> "$GITHUB_OUTPUT"
+          echo "beta_version=${beta_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate stable promotion
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/*.py
+          python3 scripts/test-release-automation.py
+          scripts/test-backup-db.sh
+          scripts/test-seed-ha-environment.sh
+          scripts/test-diagnostics-redaction.sh
+          node scripts/test-ingress-shim.js
+          python3 scripts/check-version-sync.py --tag "v${{ steps.promote.outputs.version }}"
+          python3 scripts/check-public-privacy.py
+          python3 scripts/check-addon-metadata.py
+          scripts/release-dry-run.py --tag "v${{ steps.promote.outputs.version }}" --json >/dev/null
+
+      - name: Commit and push promotion branch
+        id: commit
+        run: |
+          set -euo pipefail
+          if git diff --quiet origin/main --; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No promotion changes compared with main."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m "release: promote Dockhand ${{ steps.promote.outputs.version }} to stable"
+          git push --force-with-lease origin HEAD:${{ steps.promote.outputs.branch }}
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update promotion PR
+        if: steps.commit.outputs.changed == 'true'
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.promote.outputs.branch }}
+          VERSION: ${{ steps.promote.outputs.version }}
+          BETA_VERSION: ${{ steps.promote.outputs.beta_version }}
+        run: |
+          set -euo pipefail
+          body=$(mktemp)
+          cat > "$body" <<EOF
+          ## Summary
+          - Promote tested beta \`${BETA_VERSION}\` to stable \`${VERSION}\`.
+          - Convert Home Assistant metadata from beta to stable branding.
+          - Keep the release workflow as the publisher for GHCR \`latest\` after merge.
+
+          ## Validation
+          - \`python3 scripts/test-release-automation.py\`
+          - \`python3 scripts/check-version-sync.py --tag v${VERSION}\`
+          - \`python3 scripts/check-public-privacy.py\`
+          - \`python3 scripts/check-addon-metadata.py\`
+          - \`scripts/release-dry-run.py --tag v${VERSION} --json\`
+          EOF
+
+          existing=$(gh pr list --base main --head "${BRANCH}" --state open --json number --jq '.[0].number // empty')
+          if [[ -n "${existing}" ]]; then
+            gh pr edit "${existing}" --title "release: promote Dockhand ${VERSION} to stable" --body-file "$body"
+            echo "number=${existing}" >> "$GITHUB_OUTPUT"
+          else
+            gh pr create \
+              --base main \
+              --head "${BRANCH}" \
+              --title "release: promote Dockhand ${VERSION} to stable" \
+              --body-file "$body"
+            number=$(gh pr list --base main --head "${BRANCH}" --state open --json number --jq '.[0].number')
+            echo "number=${number}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Enable auto-merge when requested
+        if: steps.pr.outputs.number != '' && inputs.auto_merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr merge "${{ steps.pr.outputs.number }}" --auto --squash --delete-branch
