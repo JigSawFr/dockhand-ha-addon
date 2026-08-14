@@ -5,10 +5,12 @@ on:
     tags:
       - "v*.*.*"
       - "v*.*.*.*"
+      - "v*.*.*-beta.*"
+      - "v*.*.*.*-beta.*"
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to publish, e.g. 1.0.41.1"
+        description: "Version to publish, e.g. 1.0.41.1 or 1.0.41.2-beta.1"
         required: true
         type: string
 
@@ -21,16 +23,23 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.validate.outputs.version }}
+      channel: ${{ steps.validate.outputs.channel }}
+      prerelease: ${{ steps.validate.outputs.prerelease }}
+      image_tags: ${{ steps.validate.outputs.image_tags }}
       release_notes: ${{ steps.notes.outputs.release_notes }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
 
-      - name: Validate tag, config version, and changelog
+      - name: Validate tag, channel, config version, and changelog
         id: validate
         env:
           DISPATCH_VERSION: ${{ github.event.inputs.version }}
         run: |
+          set -euo pipefail
+
           if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
             TAG_VERSION="${DISPATCH_VERSION}"
             CHECK_TAG="v${TAG_VERSION}"
@@ -41,7 +50,33 @@ jobs:
 
           python3 scripts/check-version-sync.py --tag "${CHECK_TAG}"
           python3 scripts/check-public-privacy.py
+
+          if [[ "${TAG_VERSION}" == *-beta.* ]]; then
+            CHANNEL="beta"
+            REQUIRED_BRANCH="dev"
+            PRERELEASE="true"
+            IMAGE_TAGS=$(printf 'ghcr.io/jigsawfr/dockhand-ha-addon:%s\nghcr.io/jigsawfr/dockhand-ha-addon:beta\n' "${TAG_VERSION}")
+          else
+            CHANNEL="stable"
+            REQUIRED_BRANCH="main"
+            PRERELEASE="false"
+            IMAGE_TAGS=$(printf 'ghcr.io/jigsawfr/dockhand-ha-addon:%s\nghcr.io/jigsawfr/dockhand-ha-addon:latest\n' "${TAG_VERSION}")
+          fi
+
+          git fetch --no-tags origin "${REQUIRED_BRANCH}:refs/remotes/origin/${REQUIRED_BRANCH}"
+          if ! git merge-base --is-ancestor "${GITHUB_SHA}" "origin/${REQUIRED_BRANCH}"; then
+            echo "Release ${TAG_VERSION} must be published from ${REQUIRED_BRANCH}; ${GITHUB_SHA} is not contained in origin/${REQUIRED_BRANCH}."
+            exit 1
+          fi
+
           echo "version=${TAG_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "channel=${CHANNEL}" >> "$GITHUB_OUTPUT"
+          echo "prerelease=${PRERELEASE}" >> "$GITHUB_OUTPUT"
+          {
+            echo "image_tags<<DOCKHAND_IMAGE_TAGS_EOF"
+            printf '%s\n' "${IMAGE_TAGS}"
+            echo "DOCKHAND_IMAGE_TAGS_EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Extract release notes from changelog
         id: notes
@@ -66,7 +101,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   build:
-    name: Build and publish GHCR image
+    name: Build and publish ${{ needs.validate.outputs.channel }} GHCR image
     needs: validate
     runs-on: ubuntu-latest
     permissions:
@@ -104,9 +139,7 @@ jobs:
           context: ./dockhand
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            ghcr.io/jigsawfr/dockhand-ha-addon:${{ needs.validate.outputs.version }}
-            ghcr.io/jigsawfr/dockhand-ha-addon:latest
+          tags: ${{ needs.validate.outputs.image_tags }}
           labels: |
             io.hass.type=app
             io.hass.name=Dockhand
@@ -115,13 +148,14 @@ jobs:
             io.hass.version=${{ needs.validate.outputs.version }}
             org.opencontainers.image.source=https://github.com/JigSawFr/dockhand-ha-addon
             org.opencontainers.image.version=${{ needs.validate.outputs.version }}
+            org.opencontainers.image.ref.name=${{ needs.validate.outputs.channel }}
           build-args: |
             BUILD_VERSION=${{ needs.validate.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   github-release:
-    name: Create GitHub Release
+    name: Create GitHub ${{ needs.validate.outputs.channel }} Release
     needs: [validate, build]
     runs-on: ubuntu-latest
     permissions:
@@ -132,4 +166,5 @@ jobs:
         with:
           name: v${{ needs.validate.outputs.version }}
           tag_name: v${{ needs.validate.outputs.version }}
+          prerelease: ${{ needs.validate.outputs.prerelease }}
           body: ${{ needs.validate.outputs.release_notes }}
