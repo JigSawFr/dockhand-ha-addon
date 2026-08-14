@@ -1,3 +1,9 @@
+## 1.0.41.2-beta.1
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Published from the `dev` channel for testing before a stable release.
+- Does not change the bundled Dockhand application version.
+
 ## 1.0.41.1
 
 - Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.41`.
