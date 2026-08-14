@@ -1,6 +1,6 @@
 # Security model
 
-Dockhand Home Assistant Add-on packages Dockhand as a Home Assistant Supervisor add-on.
+Dockhand by JigSawFr packages Dockhand as a Home Assistant Supervisor add-on.
 
 ## Trust boundary
 

@@ -1,4 +1,4 @@
-name: Dockhand
+name: Dockhand by JigSawFr
 version: "1.0.41.1"
 slug: dockhand
 description: "Modern Docker management UI: a lightweight Portainer alternative."
@@ -31,4 +31,3 @@ schema:
   auto_backup_on_start: bool
   backup_retention: int(1,20)
 init: false
-stage: experimental
