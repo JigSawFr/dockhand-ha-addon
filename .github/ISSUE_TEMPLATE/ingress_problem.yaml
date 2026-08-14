@@ -1,0 +1,57 @@
+name: Ingress problem
+description: Report Home Assistant Ingress, routing, login, terminal, or live log issues
+title: "[Ingress]: "
+labels: [bug, ingress]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste full URLs containing live Home Assistant ingress tokens.
+        Replace any token-like path segment with `[REDACTED]`.
+  - type: input
+    id: addon-version
+    attributes:
+      label: Add-on version
+      placeholder: "1.0.41.2-beta.4"
+    validations:
+      required: true
+  - type: dropdown
+    id: channel
+    attributes:
+      label: Channel
+      options:
+        - Stable
+        - Beta / dev
+    validations:
+      required: true
+  - type: dropdown
+    id: symptom
+    attributes:
+      label: Symptom
+      options:
+        - Blank page or missing assets
+        - Redirect/login loop
+        - Auth enable flow does not move to login
+        - Terminal or live logs disconnect
+        - API request fails under Ingress
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console/network notes
+      description: Redact ingress tokens, cookies, hostnames, and personal data.
+      render: text
+  - type: textarea
+    id: logs
+    attributes:
+      label: Add-on logs or support bundle excerpt
+      description: Redact secrets and personal data before posting.
+      render: text

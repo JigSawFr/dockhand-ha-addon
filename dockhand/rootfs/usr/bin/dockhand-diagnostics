@@ -4,10 +4,16 @@ set -euo pipefail
 
 redact() {
     sed -E \
-        -e 's#(Authorization:[[:space:]]*)[^[:space:]]+#\1[REDACTED]#Ig' \
-        -e 's#((token|secret|password|passwd|api[_-]?key)[[:space:]]*[:=][[:space:]]*)[^[:space:]]+#\1[REDACTED]#Ig' \
+        -e 's#(Authorization:[[:space:]]*(Bearer|Basic)[[:space:]]+)[^[:space:]]+#\1[REDACTED]#Ig' \
+        -e 's#([?&](token|secret|password|passwd|api[_-]?key)=)[^&[:space:]]+#\1[REDACTED]#Ig' \
+        -e 's#((token|secret|password|passwd|api[_-]?key)[[:space:]]*[:=][[:space:]]*)[^&[:space:]]+#\1[REDACTED]#Ig' \
         -e 's#((token|secret|password|passwd|api[_-]?key)[[:space:]]+)[^[:space:]]+#\1[REDACTED]#Ig'
 }
+
+if [ "${DOCKHAND_REDACT_STDIN:-false}" = "true" ]; then
+    redact
+    exit 0
+fi
 
 echo "Dockhand by JigSawFr diagnostics"
 echo "generated_at=$(date -Iseconds)"

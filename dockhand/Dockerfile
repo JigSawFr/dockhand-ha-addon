@@ -1,6 +1,5 @@
 # Stage 1 — extract Dockhand artifacts
 FROM fnsys/dockhand:v1.0.41 AS dockhand
-
 # Stage 2 — HA Debian base (glibc, s6-overlay, bashio)
 FROM ghcr.io/home-assistant/base-debian:trixie-2026.04.0
 
@@ -28,7 +27,7 @@ COPY --from=dockhand --chown=dockhand:dockhand /home/dockhand /home/dockhand
 COPY rootfs /
 RUN chmod +x /etc/cont-init.d/*.sh \
     && chmod +x /etc/services.d/*/run /etc/services.d/*/finish \
-    && chmod +x /usr/bin/dockhand-healthcheck /usr/bin/dockhand-diagnostics
+    && chmod +x /usr/bin/dockhand-healthcheck /usr/bin/dockhand-diagnostics /usr/bin/dockhand-support-bundle /usr/bin/dockhand-seed-ha-environment
 
 ENV DATA_DIR=/data \
     PORT=3000 \
@@ -42,3 +41,6 @@ LABEL \
     org.opencontainers.image.url="https://github.com/JigSawFr/dockhand-ha-addon" \
     org.opencontainers.image.documentation="https://github.com/JigSawFr/dockhand-ha-addon/blob/main/README.md" \
     org.opencontainers.image.licenses="Apache-2.0"
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD /usr/bin/dockhand-healthcheck || exit 1

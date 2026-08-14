@@ -21,6 +21,12 @@ Protection Mode must be disabled because Home Assistant otherwise blocks the pri
 
 This is intentional and explicit.
 
+## AppArmor
+
+The add-on ships and enables an AppArmor profile as a defense-in-depth layer. This does not remove the Docker socket risk, but it narrows ordinary filesystem/process access around the wrapper runtime, nginx, Dockhand, `/data`, and the Docker socket.
+
+Beta releases validate this profile before promotion to stable.
+
 ## Operational risk
 
 Docker socket access is effectively administrative host access. A user who can control Dockhand can start, stop, inspect, remove, and create Docker workloads.
@@ -57,6 +63,8 @@ Dockhand stores its application data under `/data`, including its SQLite databas
 
 Home Assistant add-on backups include this persistent add-on data.
 
+The add-on asks Home Assistant to run a SQLite WAL checkpoint before backups when the database exists. Lightweight startup database copies under `/data/backups/*.sqlite` are excluded from Home Assistant backups to avoid recursively storing rollback copies inside full backups.
+
 ## Incident response
 
 If Dockhand behaves unexpectedly:
@@ -64,6 +72,6 @@ If Dockhand behaves unexpectedly:
 1. Stop the add-on.
 2. Create a Home Assistant backup.
 3. Export add-on logs.
-4. Run diagnostics if available.
+4. Run `dockhand-support-bundle` and review the generated file before sharing excerpts.
 5. Review Docker containers created or modified recently.
 6. Report security-sensitive issues privately.

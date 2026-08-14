@@ -1,0 +1,19 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+set -euo pipefail
+
+out=${1:-/data/dockerhand-support-bundle.txt}
+tmp=$(mktemp)
+cleanup() {
+    rm -f "$tmp"
+}
+trap cleanup EXIT
+
+dockhand-diagnostics > "$tmp"
+chmod 600 "$tmp"
+mkdir -p "$(dirname "$out")"
+mv "$tmp" "$out"
+trap - EXIT
+
+echo "support_bundle=${out}"
+echo "Review the file before sharing it publicly. It is redacted, but local names can still be sensitive."

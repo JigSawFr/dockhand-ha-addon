@@ -1,19 +1,20 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits"
   ],
   "timezone": "Europe/Paris",
-  "schedule": [
-    "before 6am on monday"
-  ],
-  "labels": [
-    "dependencies"
-  ],
-  "dependencyDashboard": true,
+  "baseBranches": ["dev"],
+  "schedule": ["before 6am on monday"],
+  "labels": ["dependencies"],
+  "dependencyDashboardTitle": "Dependency Dashboard — Dockhand",
   "prConcurrentLimit": 5,
-  "semanticCommits": "enabled",
+  "prHourlyLimit": 2,
   "rangeStrategy": "bump",
+  "minimumReleaseAge": "2 days",
+  "rebaseWhen": "behind-base-branch",
   "packageRules": [
     {
       "matchDatasources": ["docker"],
@@ -35,18 +36,16 @@
     {
       "matchManagers": ["github-actions"],
       "groupName": "GitHub Actions",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "actions",
       "automerge": false
     }
   ],
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [
-        "/^dockhand/Dockerfile$/"
-      ],
-      "matchStrings": [
-        "FROM fnsys/dockhand:v(?<currentValue>[^\\s]+) AS dockhand"
-      ],
+      "managerFilePatterns": ["/^dockhand/Dockerfile$/"],
+      "matchStrings": ["FROM fnsys/dockhand:v(?<currentValue>[^\\s]+) AS dockhand"],
       "datasourceTemplate": "docker",
       "depNameTemplate": "fnsys/dockhand",
       "versioningTemplate": "docker"

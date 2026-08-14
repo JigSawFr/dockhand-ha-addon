@@ -44,7 +44,12 @@ Run locally:
 python3 scripts/check-version-sync.py
 python3 scripts/check-public-privacy.py
 python3 scripts/check-addon-metadata.py
+scripts/test-backup-db.sh
+scripts/test-diagnostics-redaction.sh
+node scripts/test-ingress-shim.js
+scripts/release-dry-run.py --json
 docker build -t dockhand-ha-addon:smoke ./dockhand
+IMAGE=dockhand-ha-addon:smoke scripts/test-ingress-e2e.sh
 ```
 
 Or use the combined helper:
@@ -71,7 +76,8 @@ The stable release workflow:
 3. confirms the release commit is contained in `origin/main`
 4. builds multi-arch images
 5. publishes GHCR tags `<version>` and `latest`
-6. creates a GitHub Release from the changelog section
+6. attaches SBOM/provenance metadata and signs published image refs with cosign
+7. creates a GitHub Release from the changelog section
 
 ## Beta release
 
@@ -89,7 +95,8 @@ The beta release workflow:
 3. confirms the release commit is contained in `origin/dev`
 4. builds multi-arch images
 5. publishes GHCR tags `<version>` and `beta`
-6. creates a GitHub prerelease from the changelog section
+6. attaches SBOM/provenance metadata and signs published image refs with cosign
+7. creates a GitHub prerelease from the changelog section
 
 Beta releases never publish `latest`.
 
