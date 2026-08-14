@@ -19,6 +19,40 @@
     return url;
   }
 
+  function stripPrefix(path) {
+    if (typeof path !== 'string') return '/';
+    if (path === prefix) return '/';
+    if (path.startsWith(prefix + '/')) return path.slice(prefix.length) || '/';
+    return path || '/';
+  }
+
+  function pathOf(url) {
+    try {
+      return stripPrefix(new NativeURL(fix(url), origin).pathname);
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function requestBodyEnablesAuth(init) {
+    if (!init || typeof init.body !== 'string') return false;
+    try {
+      var body = JSON.parse(init.body);
+      return body && body.authEnabled === true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function maybeRedirectAfterAuthEnabled(response) {
+    if (!response || !response.ok || !response.clone) return;
+    response.clone().json().then(function (body) {
+      if (!body || body.authEnabled !== true || stripPrefix(window.location.pathname) === '/login') return;
+      var target = stripPrefix(window.location.pathname + window.location.search);
+      window.location.replace(fix('/login?redirect=' + encodeURIComponent(target || '/')));
+    }).catch(function () {});
+  }
+
   var NativeURL = window.URL;
   function IngressURL(input, baseUrl) {
     if (typeof input === 'string') input = fix(input);
@@ -32,8 +66,19 @@
   var nativeFetch = window.fetch;
   if (nativeFetch) {
     window.fetch = function (input, init) {
+      var shouldRedirectAfterAuth = typeof input === 'string'
+        && (init && String(init.method || 'GET').toUpperCase()) === 'PUT'
+        && pathOf(input) === '/api/auth/settings'
+        && requestBodyEnablesAuth(init);
       if (typeof input === 'string') input = fix(input);
-      return nativeFetch.call(this, input, init);
+      var request = nativeFetch.call(this, input, init);
+      if (shouldRedirectAfterAuth && request && request.then) {
+        return request.then(function (response) {
+          maybeRedirectAfterAuthEnabled(response);
+          return response;
+        });
+      }
+      return request;
     };
   }
 

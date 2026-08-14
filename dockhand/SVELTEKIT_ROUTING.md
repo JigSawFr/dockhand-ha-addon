@@ -13,7 +13,7 @@ The nginx ingress config now injects two things into HTML responses:
 - A dynamic base tag: `<base href="$http_x_ingress_path/">`
 - An external shim script: `__ha_ingress_shim.js`
 
-The shim normalizes root-relative and same-origin absolute URLs by prefixing the active ingress path.
+The shim normalizes root-relative and same-origin absolute URLs by prefixing the active ingress path. It also watches successful `PUT /api/auth/settings` requests that enable Dockhand authentication and redirects the browser to the ingress-safe login URL, avoiding the old manual refresh step after authentication is turned on.
 
 ## What The Shim Patches
 
@@ -22,6 +22,7 @@ The shim normalizes root-relative and same-origin absolute URLs by prefixing the
 - `window.EventSource`
 - `history.pushState` and `history.replaceState`
 - `Location.prototype.assign` and `Location.prototype.replace`
+- Successful auth-enable requests, to move the browser to the ingress-safe login page immediately
 - Dynamic DOM attributes (`src`, `href`, `action`) via `MutationObserver`
 - SvelteKit runtime globals (`__sveltekit*`) to align runtime base with ingress path
 

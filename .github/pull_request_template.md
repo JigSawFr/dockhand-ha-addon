@@ -6,8 +6,14 @@
 
 - [ ] `python3 scripts/check-version-sync.py`
 - [ ] `python3 scripts/check-public-privacy.py`
-- [ ] `uv run --with pyyaml python scripts/check-addon-metadata.py`
+- [ ] `python3 scripts/check-addon-metadata.py`
+- [ ] `scripts/test-backup-db.sh`
+- [ ] `scripts/test-seed-ha-environment.sh`
+- [ ] `scripts/test-diagnostics-redaction.sh`
+- [ ] `node scripts/test-ingress-shim.js`
+- [ ] `scripts/release-dry-run.py --json`
 - [ ] `docker build -t dockhand-ha-addon:smoke ./dockhand`
+- [ ] `IMAGE=dockhand-ha-addon:smoke scripts/test-ingress-e2e.sh`
 
 ## Release impact
 

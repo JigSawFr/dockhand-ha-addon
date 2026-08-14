@@ -3,6 +3,10 @@ description: Suggest an improvement
 title: "[Feature]: "
 labels: [enhancement]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Keep requests focused on the Home Assistant wrapper. Dockhand application features should usually be requested upstream.
   - type: textarea
     id: problem
     attributes:
@@ -13,6 +17,18 @@ body:
     id: proposal
     attributes:
       label: Proposed solution
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - Home Assistant add-on packaging
+        - Ingress/runtime wrapper
+        - Documentation
+        - Release/CI automation
+        - Upstream Dockhand app
     validations:
       required: true
   - type: textarea

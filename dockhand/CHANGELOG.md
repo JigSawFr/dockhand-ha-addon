@@ -1,3 +1,63 @@
+## 1.0.41.2
+
+- Stable Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.41`.
+- Create a default `Home Assistant` Docker environment on startup when no equivalent `/var/run/docker.sock` environment exists.
+- Add `seed_home_assistant_environment`, enabled by default, for users who prefer manual environment creation.
+- Enable Home Assistant ingress streaming and add a native Docker `HEALTHCHECK`.
+- Add backup hooks, redacted diagnostics, support bundle, release dry-run checks, and runtime regression tests.
+- Add real Docker-based Home Assistant Ingress E2E coverage plus SQLite seed/backup/diagnostics tests.
+- Add Renovate/Dependabot automation, focused issue templates, SBOM/provenance, and cosign signing in the release workflow.
+- Promote the tested beta wrapper changes to stable without changing the bundled Dockhand application version.
+
+## 1.0.41.2-beta.5
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Published from the `dev` channel for testing before a stable release.
+- Create a default `Home Assistant` Docker environment on startup when no equivalent `/var/run/docker.sock` environment exists.
+- Add `seed_home_assistant_environment` add-on option, enabled by default, for users who prefer manual environment creation.
+- Add SQLite regression tests for the default environment seed and cover it in smoke/preflight checks.
+- Does not change the bundled Dockhand application version.
+
+## 1.0.41.2-beta.4
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Published from the `dev` channel for testing before a stable release.
+- Add a real Docker-based Home Assistant Ingress E2E smoke test.
+- Add Renovate and Dependabot automation targeting `dev` for Docker images and GitHub Actions.
+- Pin moving Home Assistant workflow actions and add release SBOM/provenance plus cosign signing.
+- Add regression tests for startup SQLite backups, retention, diagnostics redaction, and release dry-run metadata.
+- Add `dockhand-support-bundle` for reviewed redacted diagnostics files.
+- Add stable/beta matrix details, support/supply-chain docs, and focused GitHub issue templates.
+- Does not change the bundled Dockhand application version.
+
+## 1.0.41.2-beta.3
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Published from the `dev` channel for testing before a stable release.
+- Redirect automatically to Dockhand login after authentication is enabled successfully through Home Assistant Ingress.
+- Add a regression test for ingress shim auth redirect and path rewriting behavior.
+- Move previous auth refresh and stream disconnect notes out of the active Known Issues section.
+- Replace the stale add-on-local documentation page with pointers to the current repository docs.
+- Does not change the bundled Dockhand application version.
+
+## 1.0.41.2-beta.2
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Published from the `dev` channel for testing before a stable release.
+- Enable Home Assistant ingress streaming and add a native Docker `HEALTHCHECK`.
+- Keep the packaged AppArmor profile active through Home Assistant's default behavior for beta validation.
+- Add Home Assistant backup hooks to checkpoint SQLite and exclude local startup backup copies.
+- Rename Home Assistant repository branding to Dockhand stable/beta names.
+- Polish README and channel/install documentation.
+- Harden the public privacy guard against local-environment disclosure.
+- Does not change the bundled Dockhand application version.
+
+## 1.0.41.2-beta.1
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Published from the `dev` channel for testing before a stable release.
+- Does not change the bundled Dockhand application version.
+
 ## 1.0.41.1
 
 - Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.41`.

@@ -8,6 +8,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "dockhand/config.yaml"
 REPOSITORY = ROOT / "repository.yaml"
+DOCKERFILE = ROOT / "dockhand/Dockerfile"
+NGINX = ROOT / "dockhand/rootfs/etc/nginx/conf.d/ingress.conf"
+NGINX_RUN = ROOT / "dockhand/rootfs/etc/services.d/nginx/run"
+APPARMOR = ROOT / "dockhand/apparmor.txt"
 
 
 def read(path: Path) -> str:
@@ -54,13 +58,20 @@ def has_null_mapping(text: str, block: str, key: str) -> bool:
     return bool(match and re.search(rf"^[ \t]+{re.escape(key)}:\s+null\s*$", match.group("body"), re.M))
 
 
+def is_beta_version(version: str | None) -> bool:
+    return bool(version and "-beta." in version)
+
+
 def main() -> int:
     errors: list[str] = []
     cfg = read(CONFIG)
     repo = read(REPOSITORY)
 
+    config_version = scalar(cfg, "version")
+    beta = is_beta_version(config_version)
+    expected_config_name = "Dockhand Beta by JigSawFr" if beta else "Dockhand by JigSawFr"
     expected_scalars = {
-        "name": "Dockhand by JigSawFr",
+        "name": expected_config_name,
         "slug": "dockhand",
         "image": "ghcr.io/jigsawfr/dockhand-ha-addon",
     }
@@ -71,8 +82,8 @@ def main() -> int:
 
     expected_bools = {
         "ingress": True,
+        "ingress_stream": True,
         "docker_api": True,
-        "apparmor": False,
         "init": False,
     }
     for key, expected in expected_bools.items():
@@ -80,7 +91,15 @@ def main() -> int:
         if actual is not expected:
             errors.append(f"config {key!r} must be {expected!r}, got {actual!r}")
 
-    if scalar(cfg, "stage") is not None:
+    for key in ["panel_admin", "apparmor", "watchdog"]:
+        if scalar(cfg, key) is not None:
+            errors.append(f"config {key!r} should be omitted to stay linter-compatible")
+
+    stage = scalar(cfg, "stage")
+    if beta:
+        if stage != "experimental":
+            errors.append("beta config must define stage: experimental")
+    elif stage is not None:
         errors.append("stable config must not define stage; it must not be marked experimental")
 
     arch = block_items(cfg, "arch")
@@ -95,7 +114,33 @@ def main() -> int:
     if not has_mapping_key(cfg, "ports_description", "3000/tcp"):
         errors.append("ports_description must describe optional 3000/tcp risk")
 
-    for key in ["log_level", "auto_backup_on_start", "backup_retention"]:
+    dockerfile = read(DOCKERFILE)
+    nginx = read(NGINX)
+    nginx_run = read(NGINX_RUN)
+    apparmor = read(APPARMOR)
+    if "HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3" not in dockerfile:
+        errors.append("Dockerfile must define the native Docker HEALTHCHECK")
+    if "CMD /usr/bin/dockhand-healthcheck || exit 1" not in dockerfile:
+        errors.append("Dockerfile HEALTHCHECK must call dockhand-healthcheck")
+    if "/usr/bin/dockhand-support-bundle" not in dockerfile:
+        errors.append("Dockerfile must make dockhand-support-bundle executable")
+    if "/usr/bin/dockhand-seed-ha-environment" not in dockerfile:
+        errors.append("Dockerfile must make dockhand-seed-ha-environment executable")
+    if "sub_filter_types   text/html application/xhtml+xml;" not in nginx:
+        errors.append("nginx ingress must inject shim into text/html and application/xhtml+xml")
+    if "/usr/bin/dockhand-seed-ha-environment" not in nginx_run:
+        errors.append("nginx service must seed the default Home Assistant environment before exposing ingress")
+    for entry in ["profile dockhand", "network inet stream,", "network unix stream,", "/var/run/docker.sock rw,", "/data/** rw,"]:
+        if entry not in apparmor:
+            errors.append(f"AppArmor profile must contain {entry!r}")
+
+    if scalar(cfg, "backup_pre") is None or "wal_checkpoint(TRUNCATE)" not in cfg:
+        errors.append("backup_pre must checkpoint the Dockhand SQLite WAL before HA backups")
+    backup_exclude = block_items(cfg, "backup_exclude")
+    if "\"backups/*.sqlite\"" not in backup_exclude and "backups/*.sqlite" not in backup_exclude:
+        errors.append("backup_exclude must exclude lightweight startup SQLite backups")
+
+    for key in ["log_level", "auto_backup_on_start", "backup_retention", "seed_home_assistant_environment"]:
         if not has_mapping_key(cfg, "options", key):
             errors.append(f"options must include {key}")
         if not has_mapping_key(cfg, "schema", key):
@@ -106,12 +151,13 @@ def main() -> int:
         errors.append("config devices must include /var/run/docker.sock")
 
     repo_name = scalar(repo, "name")
-    if repo_name != "Dockhand by JigSawFr":
-        errors.append("repository.yaml name must be 'Dockhand by JigSawFr' on stable")
-
     repo_url = scalar(repo, "url")
-    if repo_url != "https://github.com/JigSawFr/dockhand-ha-addon":
-        errors.append("repository.yaml url must point to JigSawFr/dockhand-ha-addon")
+    expected_repo_name = "Dockhand Beta by JigSawFr" if beta else "Dockhand by JigSawFr"
+    expected_repo_url = "https://github.com/JigSawFr/dockhand-ha-addon#dev" if beta else "https://github.com/JigSawFr/dockhand-ha-addon"
+    if repo_name != expected_repo_name:
+        errors.append(f"repository.yaml name must be {expected_repo_name!r} for this release channel")
+    if repo_url != expected_repo_url:
+        errors.append(f"repository.yaml url must be {expected_repo_url!r} for this release channel")
 
     if errors:
         print("addon_metadata=fail")

@@ -13,6 +13,35 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
+  shellcheck:
+    name: ShellCheck runtime scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends shellcheck sqlite3
+
+      - name: Run ShellCheck
+        run: |
+          shellcheck --severity=error \
+            scripts/*.sh \
+            dockhand/rootfs/etc/cont-init.d/*.sh \
+            dockhand/rootfs/etc/services.d/*/run \
+            dockhand/rootfs/etc/services.d/*/finish \
+            dockhand/rootfs/usr/bin/dockhand-*
+
+      - name: Run runtime script regression tests
+        run: |
+          scripts/test-backup-db.sh
+          scripts/test-seed-ha-environment.sh
+          scripts/test-diagnostics-redaction.sh
+          node scripts/test-ingress-shim.js
+          scripts/release-dry-run.py --json
+
   find:
     name: Find apps
     runs-on: ubuntu-latest
@@ -24,7 +53,7 @@ jobs:
 
       - name: 🔍 Find app directories
         id: addons
-        uses: home-assistant/actions/helpers/find-addons@master
+        uses: home-assistant/actions/helpers/find-addons@a7c616ce81ccda50150bf1595786c71b1883fabb
 
   lint:
     name: Lint app ${{ matrix.path }}
