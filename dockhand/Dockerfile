@@ -35,9 +35,12 @@ ENV DATA_DIR=/data \
     NODE_ENV=production
 
 LABEL \
-    org.opencontainers.image.title="Dockhand Home Assistant Add-on" \
+    org.opencontainers.image.title="Dockerhand by JigSawFr" \
     org.opencontainers.image.description="Modern Docker management UI packaged for Home Assistant." \
     org.opencontainers.image.source="https://github.com/JigSawFr/dockhand-ha-addon" \
     org.opencontainers.image.url="https://github.com/JigSawFr/dockhand-ha-addon" \
     org.opencontainers.image.documentation="https://github.com/JigSawFr/dockhand-ha-addon/blob/main/README.md" \
     org.opencontainers.image.licenses="Apache-2.0"
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD /usr/bin/dockhand-healthcheck || exit 1

@@ -5,6 +5,9 @@ profile dockhand flags=(attach_disconnected,mediate_deleted) {
 
   # Capabilities
   file,
+  network inet stream,
+  network inet6 stream,
+  network unix stream,
   signal (send) set=(kill,term,int,hup,cont),
 
   # S6-Overlay

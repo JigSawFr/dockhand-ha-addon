@@ -1,22 +1,19 @@
 # Installation
 
-## Add the stable repository
+## Pick a channel
 
-Use the Home Assistant button from the README, or add the repository manually:
+| Need | Use |
+|---|---|
+| Normal install | `Dockerhand by JigSawFr` stable channel |
+| Test upcoming wrapper changes | `Dockerhand Beta by JigSawFr` beta channel |
+
+## Stable install
+
+Repository URL:
 
 ```text
 https://github.com/JigSawFr/dockhand-ha-addon
 ```
-
-## Optional beta repository
-
-For prerelease testing, add the `dev` branch repository URL manually:
-
-```text
-https://github.com/JigSawFr/dockhand-ha-addon#dev
-```
-
-The beta channel publishes versions such as `1.0.41.2-beta.1`. It is intended for validating wrapper changes before they are promoted to the stable `main` channel. See [Release channels](channels.md).
 
 Home Assistant path:
 
@@ -24,23 +21,39 @@ Home Assistant path:
 Settings -> Add-ons -> Add-on Store -> menu -> Repositories
 ```
 
-## Install Dockhand
+Or use the Home Assistant button in the README.
 
-1. Select **Dockhand**.
+## Beta install
+
+Repository URL:
+
+```text
+https://github.com/JigSawFr/dockhand-ha-addon#dev
+```
+
+The beta channel appears as `Dockerhand Beta by JigSawFr` and publishes versions such as `1.0.41.2-beta.1`. It is intended for validating wrapper changes before they are promoted to stable.
+
+See [Release channels](channels.md) for the full stable/beta policy.
+
+## Install the add-on
+
+1. Select **Dockhand** from the chosen repository.
 2. Install the add-on.
 3. Open the add-on settings.
 4. Disable **Protection Mode**.
 5. Start the add-on.
 6. Open Dockhand from the sidebar or Ingress button.
 
-## First environment
+## First Docker environment
 
-To manage the local Home Assistant Docker host:
+Inside Dockhand:
 
-1. Open Dockhand.
-2. Go to settings or environments.
-3. Add an environment.
-4. Use the local Docker socket option when available.
+1. Open settings or environments.
+2. Add an environment.
+3. Use the local Docker socket option when available.
+4. Save and verify the dashboard loads containers/images.
+
+Useful setting: enable automatic image pruning in Dockhand's environment **Updates** settings if you want to reduce unused image buildup.
 
 ## Optional direct access
 
@@ -56,7 +69,11 @@ Do not expose this port directly to the public internet.
 
 Home Assistant shows add-on updates when a new release is published.
 
-Release tags use `vX.Y.Z` for Dockhand bumps, `vX.Y.Z.N` for stable wrapper-only revisions, and `vX.Y.Z.N-beta.M` for beta wrapper previews on the `dev` channel.
+Release tags use:
+
+- `vX.Y.Z` for bundled Dockhand app bumps;
+- `vX.Y.Z.N` for stable wrapper-only revisions;
+- `vX.Y.Z.N-beta.M` for beta wrapper previews on `dev`.
 
 ## Uninstalling
 

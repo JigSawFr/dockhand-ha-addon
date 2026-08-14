@@ -1,6 +1,6 @@
 # Security model
 
-Dockhand Home Assistant Add-on packages Dockhand as a Home Assistant Supervisor add-on.
+Dockerhand by JigSawFr packages Dockhand as a Home Assistant Supervisor add-on.
 
 ## Trust boundary
 
@@ -20,6 +20,12 @@ The important boundary is Docker socket access. Once enabled, Dockhand can manag
 Protection Mode must be disabled because Home Assistant otherwise blocks the privileged access needed by Docker management tools.
 
 This is intentional and explicit.
+
+## AppArmor
+
+The add-on ships and enables an AppArmor profile as a defense-in-depth layer. This does not remove the Docker socket risk, but it narrows ordinary filesystem/process access around the wrapper runtime, nginx, Dockhand, `/data`, and the Docker socket.
+
+Beta releases validate this profile before promotion to stable.
 
 ## Operational risk
 
@@ -56,6 +62,8 @@ Leave the port disabled for the normal Home Assistant sidebar/Ingress workflow.
 Dockhand stores its application data under `/data`, including its SQLite database.
 
 Home Assistant add-on backups include this persistent add-on data.
+
+The add-on asks Home Assistant to run a SQLite WAL checkpoint before backups when the database exists. Lightweight startup database copies under `/data/backups/*.sqlite` are excluded from Home Assistant backups to avoid recursively storing rollback copies inside full backups.
 
 ## Incident response
 

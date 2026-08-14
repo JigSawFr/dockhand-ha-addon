@@ -29,6 +29,9 @@ jobs:
           docker image inspect dockhand-ha-addon:smoke \
             --format '{{ index .Config.Labels "org.opencontainers.image.source" }}' \
             | grep -Fx 'https://github.com/JigSawFr/dockhand-ha-addon'
+          docker image inspect dockhand-ha-addon:smoke \
+            --format '{{ index .Config.Labels "org.opencontainers.image.title" }}' \
+            | grep -Fx 'Dockerhand by JigSawFr'
 
       - name: Verify packaged Dockhand app
         run: |
@@ -61,6 +64,7 @@ jobs:
           python3 - <<'PY'
           import pathlib, re, sys
           cfg = pathlib.Path('dockhand/config.yaml').read_text()
+          apparmor = pathlib.Path('dockhand/apparmor.txt').read_text()
           dockerfile = pathlib.Path('dockhand/Dockerfile').read_text()
           config_version = re.search(r'^version: "([^"]+)"$', cfg, re.M)
           dockhand_from = re.search(r'^FROM fnsys/dockhand:v([^\s]+) AS dockhand$', dockerfile, re.M)
@@ -72,15 +76,35 @@ jobs:
               'slug: dockhand',
               'image: "ghcr.io/jigsawfr/dockhand-ha-addon"',
               'ingress: true',
+              'ingress_stream: true',
               'docker_api: true',
-              'apparmor: false',
               '3000/tcp: null',
               'ports_description:',
               'auto_backup_on_start: true',
               'backup_retention: 5',
+              'backup_pre:',
+              'backup_exclude:',
+              'backups/*.sqlite',
           ]
           missing = [item for item in required if item not in cfg]
           if missing:
               print('Missing config entries:', missing)
+              sys.exit(1)
+          if 'HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3' not in dockerfile:
+              print('Missing Docker HEALTHCHECK')
+              sys.exit(1)
+          if 'CMD /usr/bin/dockhand-healthcheck || exit 1' not in dockerfile:
+              print('Docker HEALTHCHECK must call dockhand-healthcheck')
+              sys.exit(1)
+          required_apparmor = [
+              'profile dockhand',
+              'network inet stream,',
+              'network unix stream,',
+              '/var/run/docker.sock rw,',
+              '/data/** rw,',
+          ]
+          missing_apparmor = [item for item in required_apparmor if item not in apparmor]
+          if missing_apparmor:
+              print('Missing AppArmor entries:', missing_apparmor)
               sys.exit(1)
           PY

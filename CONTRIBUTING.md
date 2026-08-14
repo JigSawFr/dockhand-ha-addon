@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for improving Dockhand Home Assistant Add-on.
+Thanks for improving Dockerhand by JigSawFr — the Dockhand Home Assistant add-on wrapper.
 
 ## Ground rules
 

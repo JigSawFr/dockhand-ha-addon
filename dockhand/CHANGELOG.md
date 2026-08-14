@@ -1,3 +1,15 @@
+## 1.0.41.2-beta.2
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Published from the `dev` channel for testing before a stable release.
+- Enable Home Assistant ingress streaming and add a native Docker `HEALTHCHECK`.
+- Keep the packaged AppArmor profile active through Home Assistant's default behavior for beta validation.
+- Add Home Assistant backup hooks to checkpoint SQLite and exclude local startup backup copies.
+- Rename Home Assistant repository branding to Dockerhand stable/beta names.
+- Polish README and channel/install documentation.
+- Harden the public privacy guard against local-environment disclosure.
+- Does not change the bundled Dockhand application version.
+
 ## 1.0.41.2-beta.1
 
 - Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.

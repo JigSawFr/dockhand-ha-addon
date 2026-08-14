@@ -1,55 +1,47 @@
 # Release channels
 
-This repository uses two Home Assistant add-on channels.
+Dockerhand uses two Home Assistant repository channels: **stable** for normal use and **beta** for validating wrapper changes before promotion.
+
+## Channel matrix
+
+| Channel | Repository name in Home Assistant | URL | Branch | Versions | GHCR tags | GitHub release |
+|---|---|---|---:|---|---|---|
+| Stable | `Dockerhand by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon` | `main` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` | regular |
+| Beta | `Dockerhand Beta by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon#dev` | `dev` | `X.Y.Z.N-beta.M` | `<version>`, `beta` | prerelease |
+
+Home Assistant supports installing a repository branch by appending `#branch` to the repository URL. Stable users stay on `main`; beta users explicitly opt into `#dev`.
 
 ## Stable channel
 
-Repository URL:
+Use this for normal installations:
 
 ```text
 https://github.com/JigSawFr/dockhand-ha-addon
 ```
 
-- Branch: `main`
-- Intended for normal Home Assistant installations.
-- Release versions: `X.Y.Z` or `X.Y.Z.N`
-- GHCR tags: `<version>` and `latest`
-- GitHub Releases: regular releases
+Stable releases are published from `main` only. They update the GHCR `latest` tag.
 
 ## Beta channel
 
-Repository URL:
+Use this for prerelease testing:
 
 ```text
 https://github.com/JigSawFr/dockhand-ha-addon#dev
 ```
 
-Home Assistant supports installing a repository branch by appending the branch name after `#` in the repository URL.
+Beta releases are published from `dev` only. They update the GHCR `beta` tag, but never `latest`.
 
-- Branch: `dev`
-- Intended for testing wrapper changes before stable promotion.
-- Release versions: `X.Y.Z.N-beta.M`
-- GHCR tags: `<version>` and `beta`
-- GitHub Releases: prereleases
-- The bundled Dockhand version stays anchored to `X.Y.Z`.
-
-Example beta version:
+## Version example
 
 ```text
 1.0.41.2-beta.1
 ```
 
-This means:
+Means:
 
-- bundled Dockhand: `fnsys/dockhand:v1.0.41`
+- bundled Dockhand app: `fnsys/dockhand:v1.0.41`
 - target stable wrapper revision: `1.0.41.2`
 - beta iteration: `beta.1`
-
-## Why branch-based channels?
-
-Home Assistant add-on repositories are branch-aware. A beta channel should live on its own branch and repository URL so stable users do not see prerelease versions as normal updates.
-
-The add-on `slug` remains `dockhand`; Home Assistant prefixes installed add-ons by repository, so stable and beta repositories can be distinguished by their repository source.
 
 ## Publishing a beta
 
@@ -64,14 +56,18 @@ git tag v1.0.41.2-beta.1
 git push origin dev v1.0.41.2-beta.1
 ```
 
-The release workflow validates that beta versions are published from `dev`. It publishes the version tag plus `beta`, but never `latest`.
+The release workflow verifies that beta tags are contained in `origin/dev` before publishing images.
 
 ## Promoting beta to stable
 
-When a beta is validated:
+When a beta has been validated:
 
-1. Port or merge the tested changes to `main`.
-2. Bump to the stable target version, e.g. `1.0.41.2`.
+1. Merge or port the tested changes to `main`.
+2. Bump to the stable target version, for example `1.0.41.2`.
 3. Publish `v1.0.41.2` from `main`.
 
-Stable release validation refuses prerelease versions on `main`, and beta release validation refuses non-beta versions on `dev`.
+The release workflow refuses prerelease versions on the stable path and refuses non-beta versions on the beta path.
+
+## Why keep the same add-on slug?
+
+The add-on slug remains `dockhand` to avoid unnecessary migration friction. Home Assistant differentiates the channels by repository source/name, not by changing the app identity.

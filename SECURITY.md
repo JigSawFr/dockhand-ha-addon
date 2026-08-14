@@ -1,6 +1,6 @@
 # Security Policy
 
-Dockhand Home Assistant Add-on is a community-maintained wrapper around [Dockhand](https://github.com/Finsys/dockhand).
+Dockerhand by JigSawFr is a community-maintained Home Assistant wrapper around [Dockhand](https://github.com/Finsys/dockhand).
 
 ## Security model
 

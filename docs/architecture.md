@@ -23,7 +23,14 @@ Home Assistant OS Docker host
 
 ### Home Assistant Supervisor
 
-Installs and runs the add-on container, manages Ingress, backups, and updates.
+Installs and runs the add-on container, manages Ingress, backups, health monitoring, and updates.
+
+The add-on declares:
+
+- `ingress_stream: true` for long-lived Dockhand requests.
+- Docker `HEALTHCHECK` runs the packaged healthcheck helper.
+- Home Assistant's default admin-only panel behavior is kept linter-compatible.
+- backup hooks that checkpoint SQLite before HA backups and exclude local startup backup copies.
 
 ### nginx
 
@@ -59,3 +66,7 @@ Dockhand database files live under `/data/db`.
 ### Docker socket
 
 The add-on needs `/var/run/docker.sock` to manage Docker. Protection Mode must be disabled.
+
+### AppArmor
+
+The packaged AppArmor profile is enabled for beta validation. It is defense in depth around the wrapper runtime; it does not make Docker socket access low-risk.
