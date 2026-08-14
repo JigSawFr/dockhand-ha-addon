@@ -14,5 +14,9 @@ mkdir -p \
     /tmp/nginx/uwsgi_temp \
     /tmp/nginx/scgi_temp
 
+if ! /usr/bin/dockhand-seed-ha-environment; then
+    bashio::log.warning "Home Assistant environment seed failed; continuing startup."
+fi
+
 bashio::log.info "Starting nginx ingress proxy..."
 exec nginx -g "daemon off;"

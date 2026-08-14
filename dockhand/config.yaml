@@ -1,5 +1,5 @@
 name: Dockhand
-version: "1.0.41.2-beta.4"
+version: "1.0.41.2-beta.5"
 slug: dockhand
 description: "Modern Docker management UI: a lightweight Portainer alternative."
 url: "https://github.com/JigSawFr/dockhand-ha-addon"
@@ -26,10 +26,12 @@ options:
   log_level: info
   auto_backup_on_start: true
   backup_retention: 5
+  seed_home_assistant_environment: true
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)
   auto_backup_on_start: bool
   backup_retention: int(1,20)
+  seed_home_assistant_environment: bool
 backup_pre: "if [ -f /data/db/dockhand.db ]; then sqlite3 /data/db/dockhand.db 'PRAGMA wal_checkpoint(TRUNCATE);'; fi"
 backup_exclude:
   - "backups/*.sqlite"

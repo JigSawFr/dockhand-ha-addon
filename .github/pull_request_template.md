@@ -8,6 +8,7 @@
 - [ ] `python3 scripts/check-public-privacy.py`
 - [ ] `python3 scripts/check-addon-metadata.py`
 - [ ] `scripts/test-backup-db.sh`
+- [ ] `scripts/test-seed-ha-environment.sh`
 - [ ] `scripts/test-diagnostics-redaction.sh`
 - [ ] `node scripts/test-ingress-shim.js`
 - [ ] `scripts/release-dry-run.py --json`

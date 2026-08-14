@@ -31,6 +31,7 @@ The add-on declares:
 - Docker `HEALTHCHECK` runs the packaged healthcheck helper.
 - Home Assistant's default admin-only panel behavior is kept linter-compatible.
 - backup hooks that checkpoint SQLite before HA backups and exclude local startup backup copies.
+- startup seeding for a default `Home Assistant` Docker environment when no equivalent `/var/run/docker.sock` environment exists.
 
 ### nginx
 

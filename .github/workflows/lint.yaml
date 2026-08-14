@@ -37,6 +37,7 @@ jobs:
       - name: Run runtime script regression tests
         run: |
           scripts/test-backup-db.sh
+          scripts/test-seed-ha-environment.sh
           scripts/test-diagnostics-redaction.sh
           node scripts/test-ingress-shim.js
           scripts/release-dry-run.py --json

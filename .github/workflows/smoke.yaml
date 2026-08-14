@@ -50,6 +50,7 @@ jobs:
             test -f /usr/bin/dockhand-healthcheck
             test -f /usr/bin/dockhand-diagnostics
             test -f /usr/bin/dockhand-support-bundle
+            test -f /usr/bin/dockhand-seed-ha-environment
             test -f /usr/share/dockhand-ha/ingress-shim.js
             mkdir -p \
               /tmp/nginx/client_temp \
