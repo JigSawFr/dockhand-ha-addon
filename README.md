@@ -4,7 +4,7 @@
   <a href="https://github.com/Finsys/dockhand"><img src="dockhand/logo.png" alt="Dockhand Logo" height="60" /></a>
 </p>
 
-# Dockhand Home Assistant Add-on
+# Dockhand by JigSawFr
 
 [![GitHub Release][releases-shield]][releases]
 ![Project Stage][project-stage-shield]

@@ -60,7 +60,7 @@ def main() -> int:
     repo = read(REPOSITORY)
 
     expected_scalars = {
-        "name": "Dockhand",
+        "name": "Dockhand by JigSawFr",
         "slug": "dockhand",
         "image": "ghcr.io/jigsawfr/dockhand-ha-addon",
     }
@@ -79,6 +79,9 @@ def main() -> int:
         actual = bool_scalar(cfg, key)
         if actual is not expected:
             errors.append(f"config {key!r} must be {expected!r}, got {actual!r}")
+
+    if scalar(cfg, "stage") is not None:
+        errors.append("stable config must not define stage; it must not be marked experimental")
 
     arch = block_items(cfg, "arch")
     if arch != ["aarch64", "amd64"]:
@@ -101,6 +104,10 @@ def main() -> int:
     devices = block_items(cfg, "devices")
     if "/var/run/docker.sock" not in devices:
         errors.append("config devices must include /var/run/docker.sock")
+
+    repo_name = scalar(repo, "name")
+    if repo_name != "Dockhand by JigSawFr":
+        errors.append("repository.yaml name must be 'Dockhand by JigSawFr' on stable")
 
     repo_url = scalar(repo, "url")
     if repo_url != "https://github.com/JigSawFr/dockhand-ha-addon":
