@@ -15,7 +15,7 @@ if [ "${DOCKHAND_REDACT_STDIN:-false}" = "true" ]; then
     exit 0
 fi
 
-echo "Dockerhand by JigSawFr diagnostics"
+echo "Dockhand by JigSawFr diagnostics"
 echo "generated_at=$(date -Iseconds)"
 echo "addon_version=${BUILD_VERSION:-unknown}"
 echo "arch=${BUILD_ARCH:-unknown}"

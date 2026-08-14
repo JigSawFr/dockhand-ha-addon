@@ -4,7 +4,7 @@
   <a href="https://github.com/Finsys/dockhand"><img src="dockhand/logo.png" alt="Dockhand" height="58" /></a>
 </p>
 
-<h1 align="center">Dockerhand by JigSawFr</h1>
+<h1 align="center">Dockhand by JigSawFr</h1>
 
 <p align="center">
   <strong>Dockhand packaged cleanly for Home Assistant OS / Supervisor.</strong><br />
@@ -52,7 +52,7 @@ https://github.com/JigSawFr/dockhand-ha-addon
 Repository name in Home Assistant:
 
 ```text
-Dockerhand by JigSawFr
+Dockhand by JigSawFr
 ```
 
 ### Beta channel
@@ -68,7 +68,7 @@ https://github.com/JigSawFr/dockhand-ha-addon#dev
 Repository name in Home Assistant:
 
 ```text
-Dockerhand Beta by JigSawFr
+Dockhand Beta by JigSawFr
 ```
 
 Beta versions look like `1.0.41.2-beta.1` and publish GHCR tags `beta` plus the exact version. See [Release channels](docs/channels.md).
@@ -110,8 +110,8 @@ Defense-in-depth included by the wrapper:
 
 | Channel | Home Assistant repository | Branch | Current version | Versions | GHCR tags |
 |---|---|---:|---:|---|---|
-| Stable | `Dockerhand by JigSawFr` | `main` | `1.0.41.1` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |
-| Beta | `Dockerhand Beta by JigSawFr` | `dev` | `1.0.41.2-beta.5` | `X.Y.Z.N-beta.M` | `<version>`, `beta` |
+| Stable | `Dockhand by JigSawFr` | `main` | `1.0.41.1` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |
+| Beta | `Dockhand Beta by JigSawFr` | `dev` | `1.0.41.2-beta.5` | `X.Y.Z.N-beta.M` | `<version>`, `beta` |
 
 Stable users do not receive beta builds unless they explicitly add the `#dev` repository URL.
 

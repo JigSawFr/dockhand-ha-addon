@@ -1,13 +1,13 @@
 # Release channels
 
-Dockerhand uses two Home Assistant repository channels: **stable** for normal use and **beta** for validating wrapper changes before promotion.
+Dockhand uses two Home Assistant repository channels: **stable** for normal use and **beta** for validating wrapper changes before promotion.
 
 ## Channel matrix
 
 | Channel | Repository name in Home Assistant | URL | Branch | Current version | Versions | GHCR tags | GitHub release |
 |---|---|---|---:|---:|---|---|---|
-| Stable | `Dockerhand by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon` | `main` | `1.0.41.1` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` | regular |
-| Beta | `Dockerhand Beta by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon#dev` | `dev` | `1.0.41.2-beta.5` | `X.Y.Z.N-beta.M` | `<version>`, `beta` | prerelease |
+| Stable | `Dockhand by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon` | `main` | `1.0.41.1` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` | regular |
+| Beta | `Dockhand Beta by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon#dev` | `dev` | `1.0.41.2-beta.5` | `X.Y.Z.N-beta.M` | `<version>`, `beta` | prerelease |
 
 Home Assistant supports installing a repository branch by appending `#branch` to the repository URL. Stable users stay on `main`; beta users explicitly opt into `#dev`.
 
