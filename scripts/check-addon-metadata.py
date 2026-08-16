@@ -126,6 +126,9 @@ def main() -> int:
         errors.append("Dockerfile must make dockhand-support-bundle executable")
     if "/usr/bin/dockhand-seed-ha-environment" not in dockerfile:
         errors.append("Dockerfile must make dockhand-seed-ha-environment executable")
+    for package in ["git", "openssh-client"]:
+        if not re.search(rf"^[ \t]*{re.escape(package)}[ \t]*\\\\?$", dockerfile, re.M):
+            errors.append(f"Dockerfile runtime packages must include {package!r} for Git stack SSH deploys")
     if "sub_filter_types   text/html application/xhtml+xml;" not in nginx:
         errors.append("nginx ingress must inject shim into text/html and application/xhtml+xml")
     if "/usr/bin/dockhand-seed-ha-environment" not in nginx_run:

@@ -1,3 +1,9 @@
+## 1.0.41.3
+
+- Restore Git stack deploy/redeploy support in the Home Assistant wrapper by shipping runtime `git` and `openssh-client` tools.
+- Fix SSH-backed repositories failing before clone with `Cannot read properties of undefined (reading 'toString')` when `ssh-keygen` is unavailable.
+- Does not change the bundled Dockhand application version (`fnsys/dockhand:v1.0.41`).
+
 ## 1.0.41.2
 
 - Stable Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.41`.
