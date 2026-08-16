@@ -1,3 +1,13 @@
+## 1.0.41.4
+
+- Add a dedicated nginx direct endpoint on internal port `3001` for trusted sibling add-ons and reverse proxies.
+- Require an exact, masked `direct_proxy_token` on every network request to port `3001`; deny access by default and strip the token before proxying to Dockhand.
+- Keep Dockhand bound to loopback-only `127.0.0.1:3000` and keep port `8099` restricted to the Home Assistant Ingress gateway.
+- Keep `/api/activity/events` and `/api/audit/events` unbuffered on both proxy paths, alongside the existing event and stream endpoints.
+- Replace the ineffective optional `3000/tcp` host mapping with optional `3001/tcp`, disabled by default.
+- Add static guards for stream routing and redirect rules, plus Docker E2E coverage for direct authentication, listener isolation, real login redirects and Ingress shim behavior.
+- Does not change the bundled Dockhand application version (`fnsys/dockhand:v1.0.41`).
+
 ## 1.0.41.3
 
 - Restore Git stack deploy/redeploy support in the Home Assistant wrapper by shipping runtime `git` and `openssh-client` tools.

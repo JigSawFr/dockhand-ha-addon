@@ -61,15 +61,33 @@ Disable this with the add-on option `seed_home_assistant_environment: false` if 
 
 Useful setting: enable automatic image pruning in Dockhand's environment **Updates** settings if you want to reduce unused image buildup.
 
-## Optional direct access
+## Optional direct proxy access
 
 Dockhand normally runs through Home Assistant Ingress. This is the recommended mode.
 
-Advanced users may optionally expose Dockhand's internal `3000/tcp` port from the add-on network settings. The port is disabled by default.
+For a trusted reverse proxy running as a sibling Home Assistant add-on:
 
-Only enable it on trusted networks or behind your own authenticated reverse proxy. Direct access bypasses Home Assistant Ingress protections.
+1. Generate a private token containing 32-128 characters from `A-Z`, `a-z`, `0-9`, `_` or `-`.
+2. Set that value in the Dockhand add-on option `direct_proxy_token` and restart Dockhand.
+3. Target the Dockhand add-on hostname on internal port `3001`.
+4. Configure the reverse proxy to send the same token without exposing it to clients:
 
-Do not expose this port directly to the public internet.
+   ```nginx
+   proxy_set_header Host $host;
+   proxy_set_header X-Forwarded-Host $host;
+   proxy_set_header X-Forwarded-Proto $scheme;
+   proxy_set_header X-Dockhand-Proxy-Token "<same-private-token>";
+   ```
+
+The trusted reverse proxy must overwrite these forwarding headers rather than preserve client-supplied values.
+
+Dockhand itself remains on loopback-only `127.0.0.1:3000`. Requests to `3001` without the exact token return `403`.
+
+Do not use port `8099` for this purpose: it is restricted to the Home Assistant Ingress gateway.
+
+Reverse proxies outside the Home Assistant add-on network may optionally map `3001/tcp` to a host port in the add-on network settings. Host publication is disabled by default and should remain disabled when sibling-add-on routing is available.
+
+Keep the token private, enable Dockhand authentication, and do not expose the port directly to the public internet.
 
 ## Updating
 

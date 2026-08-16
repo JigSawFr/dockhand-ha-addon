@@ -1,5 +1,5 @@
 name: Dockhand by JigSawFr
-version: "1.0.41.3"
+version: "1.0.41.4"
 slug: dockhand
 description: "Modern Docker management UI: a lightweight Portainer alternative."
 url: "https://github.com/JigSawFr/dockhand-ha-addon"
@@ -12,9 +12,9 @@ ingress_stream: true
 panel_icon: mdi:docker
 panel_title: Dockhand
 ports:
-  3000/tcp: null
+  3001/tcp: null
 ports_description:
-  3000/tcp: "Optional direct Dockhand access. Disabled by default; use only on trusted networks or behind an authenticated reverse proxy."
+  3001/tcp: "Optional token-authenticated direct proxy endpoint. Disabled on the host by default."
 devices:
   - /var/run/docker.sock
 hassio_role: admin
@@ -27,11 +27,13 @@ options:
   auto_backup_on_start: true
   backup_retention: 5
   seed_home_assistant_environment: true
+  direct_proxy_token: ""
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)
   auto_backup_on_start: bool
   backup_retention: int(1,20)
   seed_home_assistant_environment: bool
+  direct_proxy_token: password
 backup_pre: "if [ -f /data/db/dockhand.db ]; then sqlite3 /data/db/dockhand.db 'PRAGMA wal_checkpoint(TRUNCATE);'; fi"
 backup_exclude:
   - "backups/*.sqlite"
