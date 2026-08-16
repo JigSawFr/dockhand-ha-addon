@@ -24,6 +24,11 @@ jobs:
       - name: Verify ingress shim behavior
         run: node scripts/test-ingress-shim.js
 
+      - name: Verify direct proxy authentication and listener isolation
+        run: |
+          scripts/test-direct-proxy-auth.sh
+          python3 scripts/test-direct-proxy-config.py
+
       - name: Build amd64 image locally
         run: docker build -t dockhand-ha-addon:smoke ./dockhand
 
@@ -47,6 +52,8 @@ jobs:
             test -f /etc/cont-init.d/02-data-dir.sh
             test -f /etc/cont-init.d/03-backup-db.sh
             test -f /etc/nginx/conf.d/ingress.conf
+            test -f /etc/nginx/conf.d/direct.conf
+            test -f /etc/cont-init.d/04-direct-proxy-auth.sh
             test -f /usr/bin/dockhand-healthcheck
             test -f /usr/bin/dockhand-diagnostics
             test -f /usr/bin/dockhand-support-bundle
@@ -60,6 +67,7 @@ jobs:
               /tmp/nginx/scgi_temp
             node --version
             sqlite3 --version
+            DOCKHAND_TEST_DIRECT_PROXY_TOKEN= bash /etc/cont-init.d/04-direct-proxy-auth.sh
             nginx -t
             grep -F "alias /usr/share/dockhand-ha/ingress-shim.js;" /etc/nginx/conf.d/ingress.conf
           '
@@ -96,10 +104,12 @@ jobs:
               'ingress: true',
               'ingress_stream: true',
               'docker_api: true',
-              '3000/tcp: null',
+              '3001/tcp: null',
               'ports_description:',
               'auto_backup_on_start: true',
               'backup_retention: 5',
+              'direct_proxy_token: ""',
+              'direct_proxy_token: password',
               'backup_pre:',
               'backup_exclude:',
               'backups/*.sqlite',
