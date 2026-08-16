@@ -1,5 +1,5 @@
 name: Dockhand by JigSawFr
-version: "1.0.41.2"
+version: "1.0.41.3"
 slug: dockhand
 description: "Modern Docker management UI: a lightweight Portainer alternative."
 url: "https://github.com/JigSawFr/dockhand-ha-addon"
