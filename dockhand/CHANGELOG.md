@@ -1,3 +1,10 @@
+## 1.0.43.1-beta.1
+
+- Prepare beta validation for Dockhand upstream v1.0.43.
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.43`.
+- Published from the `dev` channel for testing before a stable release.
+- Prepared by the release automation workflow.
+
 ## 1.0.41.2-beta.5
 
 - Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
