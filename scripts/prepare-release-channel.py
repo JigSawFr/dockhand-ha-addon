@@ -20,6 +20,7 @@ STABLE_NAME = "Dockhand by JigSawFr"
 BETA_NAME = "Dockhand Beta by JigSawFr"
 STABLE_URL = "https://github.com/JigSawFr/dockhand-ha-addon"
 BETA_URL = "https://github.com/JigSawFr/dockhand-ha-addon#dev"
+UPSTREAM_RELEASE_URL = "https://github.com/Finsys/dockhand/releases/tag/v{version}"
 
 
 def read(path: Path) -> str:
@@ -116,18 +117,24 @@ def changelog_body(channel: str, version: str, dockhand_version: str, summary: s
     else:
         custom = ""
 
+    # The changelog is what Home Assistant shows users on the update screen, so
+    # point at the upstream notes rather than describing the automation run.
+    upstream = f"- Dockhand {dockhand_version} release notes: {UPSTREAM_RELEASE_URL.format(version=dockhand_version)}\n"
+
     if channel == "beta":
         return (
             custom
             + f"- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v{dockhand_version}`.\n"
             + "- Published from the `dev` channel for testing before a stable release.\n"
-            + "- Prepared by the release automation workflow.\n\n"
+            + upstream
+            + "\n"
         )
     return (
         custom
         + f"- Stable Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v{dockhand_version}`.\n"
         + "- Promoted from the tested beta channel.\n"
-        + "- Prepared by the release automation workflow.\n\n"
+        + upstream
+        + "\n"
     )
 
 

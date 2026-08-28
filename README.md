@@ -132,12 +132,12 @@ Example:
 
 | Surface | Example |
 |---|---|
-| Bundled Dockhand image | `fnsys/dockhand:v1.0.41` |
-| First stable wrapper | `1.0.41` |
-| Stable wrapper-only fix | `1.0.41.1` |
-| Beta wrapper preview | `1.0.41.2-beta.1` |
+| Bundled Dockhand image | `fnsys/dockhand:v1.0.43` |
+| Beta preview of the new upstream | `1.0.43.1-beta.1` |
+| Stable release of that preview | `1.0.43.1` |
+| Stable wrapper-only fix on top | `1.0.43.2` |
 
-Wrapper-only stable updates use numeric revisions (`X.Y.Z.N`) so Home Assistant can sort them as updates from `X.Y.Z`.
+Wrapper-only stable updates use numeric revisions (`X.Y.Z.N`) so Home Assistant can sort them as updates from `X.Y.Z`. A beta must carry a revision (`X.Y.Z.N-beta.M`), so an upstream bump validated through beta lands on `X.Y.Z.1` rather than a bare `X.Y.Z`.
 
 ## Documentation
 

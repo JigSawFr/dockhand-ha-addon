@@ -30,11 +30,24 @@ jobs:
       (github.event.pull_request.user.login == 'renovate[bot]' || startsWith(github.event.pull_request.head.ref, 'renovate/'))
     runs-on: ubuntu-latest
     steps:
+      # A push made with GITHUB_TOKEN does not start workflow runs, which leaves
+      # the normalized commit — the one carrying the version bump — with no CI at
+      # all. AUTOMATION_PAT avoids that; without it the runs sit at
+      # action_required until a maintainer approves them by hand.
       - name: Check out PR branch
         uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
+          token: ${{ secrets.AUTOMATION_PAT || github.token }}
+
+      - name: Warn when the normalized commit will not start CI
+        env:
+          HAS_PAT: ${{ secrets.AUTOMATION_PAT != '' }}
+        run: |
+          if [[ "${HAS_PAT}" != "true" ]]; then
+            echo "::warning::AUTOMATION_PAT is not set, so the normalized commit will not start workflow runs. Approve them manually on the pull request."
+          fi
 
       - name: Normalize Dockhand beta release metadata
         id: normalize

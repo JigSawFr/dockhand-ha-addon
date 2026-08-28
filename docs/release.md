@@ -4,7 +4,8 @@ This repository keeps the add-on version anchored to the bundled Dockhand versio
 
 ## Version policy
 
-- Dockhand bump: use the exact upstream Dockhand SemVer, e.g. `1.0.41`.
+- Dockhand bump validated through beta: use the first wrapper revision on the new base, e.g. `1.0.43.1`, previewed as `1.0.43.1-beta.1`. A beta must carry a revision (`X.Y.Z.N-beta.M`), so a bare `X.Y.Z` cannot be reached through the beta channel; `release-plan.py` produces `X.Y.Z.1` for this reason.
+- Dockhand bump published straight to stable: the bare upstream SemVer, e.g. `1.0.41`, is still valid.
 - Wrapper-only stable fix: use a numeric wrapper revision on the same Dockhand base, e.g. `1.0.41.1`, then `1.0.41.2`.
 - Wrapper-only beta: use the next wrapper revision plus beta iteration, e.g. `1.0.41.2-beta.1`, then `1.0.41.2-beta.2`.
 - Use the same version string for Home Assistant metadata, Git tags, GitHub Releases, and GHCR tags.
