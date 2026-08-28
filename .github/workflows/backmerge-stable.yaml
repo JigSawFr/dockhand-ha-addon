@@ -1,0 +1,106 @@
+name: Back-merge stable into beta
+
+# A fix released straight to main leaves dev behind, and dev is what gets
+# promoted back to stable. This proposes the back-merge as soon as main moves,
+# so the gap is never silent. The Version guard's channel-sync job is the
+# backstop that fails beta releases while the gap is still open.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: backmerge-stable
+  cancel-in-progress: false
+
+jobs:
+  backmerge:
+    name: Open a main to dev back-merge pull request
+    if: github.repository == 'JigSawFr/dockhand-ha-addon'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Skip when dev already carries main
+        id: gap
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          if git merge-base --is-ancestor origin/main HEAD; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "dev already contains main; nothing to back-merge."
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            git log --oneline HEAD..origin/main
+          fi
+
+      - name: Merge main into a back-merge branch
+        id: merge
+        if: steps.gap.outputs.needed == 'true'
+        run: |
+          set -euo pipefail
+          branch="automation/backmerge-main-${GITHUB_SHA::7}"
+          echo "branch=${branch}" >> "$GITHUB_OUTPUT"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "${branch}"
+
+          if git merge --no-ff --no-edit origin/main; then
+            echo "conflicted=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "conflicted=true" >> "$GITHUB_OUTPUT"
+            git merge --abort
+            exit 0
+          fi
+
+          # The beta channel keeps its own identity; main must never overwrite it.
+          python3 scripts/check-addon-metadata.py
+          python3 scripts/check-channel-sync.py
+
+      - name: Push and open the pull request
+        if: steps.gap.outputs.needed == 'true' && steps.merge.outputs.conflicted == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.merge.outputs.branch }}
+        run: |
+          set -euo pipefail
+          git push -u origin "${BRANCH}"
+          if gh pr list --head "${BRANCH}" --state open --json number --jq 'length' | grep -qv '^0$'; then
+            echo "Pull request already open for ${BRANCH}."
+            exit 0
+          fi
+          gh pr create \
+            --base dev \
+            --head "${BRANCH}" \
+            --title "chore: back-merge stable into the beta channel" \
+            --body "$(cat <<'BODY'
+          `main` moved ahead of `dev`. Since `dev` is what gets promoted back to stable,
+          leaving the gap open means the next beta ships a wrapper behind stable, and
+          promoting it republishes the regression.
+
+          This back-merge was produced automatically and merged cleanly. Review the
+          channel-identity files before merging — the beta channel must keep its own
+          name, `repository.yaml` `#dev` URL and `stage: experimental`.
+
+          Note: pull requests opened with `GITHUB_TOKEN` do not start workflow runs.
+          Approve the runs on this pull request, or push an empty-free change, before
+          relying on its checks.
+          BODY
+          )"
+
+      - name: Report a conflicted back-merge
+        if: steps.gap.outputs.needed == 'true' && steps.merge.outputs.conflicted == 'true'
+        run: |
+          echo "::error::main cannot be back-merged into dev automatically; resolve the conflict by hand."
+          echo "The Version guard channel-sync job will keep failing beta work until dev carries main."
+          exit 1
