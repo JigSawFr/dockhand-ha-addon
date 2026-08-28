@@ -109,10 +109,12 @@ def main() -> int:
     if not has_data_map(cfg):
         errors.append("config map must include writable data mapping")
 
-    if not has_null_mapping(cfg, "ports", "3000/tcp"):
-        errors.append("ports must include disabled optional 3000/tcp mapping")
-    if not has_mapping_key(cfg, "ports_description", "3000/tcp"):
-        errors.append("ports_description must describe optional 3000/tcp risk")
+    if not has_null_mapping(cfg, "ports", "3001/tcp"):
+        errors.append("ports must include disabled optional direct proxy endpoint 3001/tcp")
+    if has_mapping_key(cfg, "ports", "3000/tcp"):
+        errors.append("ports must not expose loopback-only Dockhand application port 3000/tcp")
+    if not has_mapping_key(cfg, "ports_description", "3001/tcp"):
+        errors.append("ports_description must describe optional direct proxy endpoint 3001/tcp")
 
     dockerfile = read(DOCKERFILE)
     nginx = read(NGINX)
@@ -126,6 +128,9 @@ def main() -> int:
         errors.append("Dockerfile must make dockhand-support-bundle executable")
     if "/usr/bin/dockhand-seed-ha-environment" not in dockerfile:
         errors.append("Dockerfile must make dockhand-seed-ha-environment executable")
+    for package in ["git", "openssh-client"]:
+        if not re.search(rf"^[ \t]*{re.escape(package)}[ \t]*\\\\?$", dockerfile, re.M):
+            errors.append(f"Dockerfile runtime packages must include {package!r} for Git stack SSH deploys")
     if "sub_filter_types   text/html application/xhtml+xml;" not in nginx:
         errors.append("nginx ingress must inject shim into text/html and application/xhtml+xml")
     if "/usr/bin/dockhand-seed-ha-environment" not in nginx_run:

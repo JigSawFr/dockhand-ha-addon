@@ -18,5 +18,5 @@ if ! /usr/bin/dockhand-seed-ha-environment; then
     bashio::log.warning "Home Assistant environment seed failed; continuing startup."
 fi
 
-bashio::log.info "Starting nginx ingress proxy..."
+bashio::log.info "Starting nginx Ingress and direct proxy endpoints..."
 exec nginx -g "daemon off;"

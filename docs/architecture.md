@@ -1,22 +1,24 @@
 # Architecture
 
 ```text
-Home Assistant UI
-    |
-    | Ingress
-    v
-nginx :8099
-    |
-    | reverse proxy
-    v
-Dockhand :3000
-    |
-    | Docker API
-    v
-/var/run/docker.sock
-    |
-    v
-Home Assistant OS Docker host
+Home Assistant UI                     Trusted sibling reverse proxy
+    |                                             |
+    | Ingress                                     | internal HTTP
+    v                                             v
+nginx :8099 (HA gateway only)          nginx :3001 (direct endpoint)
+    |                                             |
+    +----------------------+----------------------+
+                           |
+                           | reverse proxy
+                           v
+                 Dockhand 127.0.0.1:3000
+                           |
+                           | Docker API
+                           v
+                 /var/run/docker.sock
+                           |
+                           v
+              Home Assistant OS Docker host
 ```
 
 ## Components
@@ -35,15 +37,22 @@ The add-on declares:
 
 ### nginx
 
-The add-on runs nginx as the Ingress-facing proxy. It listens on port `8099` inside the add-on and only allows the Home Assistant Ingress gateway address.
+The add-on runs one nginx process with two separated listeners:
+
+- `8099` is the Ingress-facing endpoint and only allows the Home Assistant Ingress gateway address;
+- `3001` is the token-authenticated direct endpoint for trusted sibling add-ons or an optional host mapping.
+
+Both listeners proxy to Dockhand on loopback. Only the Ingress listener injects the Home Assistant base path and shim. Network access to `3001` is denied until `direct_proxy_token` is configured and supplied in the `X-Dockhand-Proxy-Token` request header.
 
 nginx handles:
 
+- source isolation between Ingress and direct access
 - Ingress path handling
 - WebSocket upgrade headers
+- unbuffered long-lived API streams
 - long-lived stream timeouts
-- HTML base path injection
-- static Ingress shim delivery
+- HTML base path injection on Ingress only
+- static Ingress shim delivery on Ingress only
 
 ### Dockhand
 

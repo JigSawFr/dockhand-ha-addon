@@ -25,6 +25,7 @@ check "nginx configuration" nginx -t
 
 if command -v curl >/dev/null 2>&1; then
     check "Dockhand HTTP on 127.0.0.1:3000" curl -fsS --max-time 5 http://127.0.0.1:3000/
+    check "nginx direct proxy on 127.0.0.1:3001" curl -fsS --max-time 5 http://127.0.0.1:3001/__direct_health
     echo "SKIP: nginx ingress HTTP probe is restricted to the Home Assistant Ingress gateway"
 else
     echo "SKIP: curl not installed"

@@ -36,6 +36,15 @@ class ReleaseAutomationTests(unittest.TestCase):
             shutil.copy2(ROOT / rel, dest)
         return tmp
 
+    def assert_unreleased(self, root: Path, version: str) -> None:
+        """prepare-release-channel.py is idempotent, so a released version writes no entry."""
+        changelog = (root / "dockhand/CHANGELOG.md").read_text()
+        self.assertNotIn(
+            f"## {version}\n",
+            changelog,
+            f"fixture already ships {version}; point this test at an unreleased version",
+        )
+
     def test_beta_plan_for_new_upstream_dockhand_version(self) -> None:
         root = self.copy_repo_fixture()
         try:
@@ -94,6 +103,7 @@ class ReleaseAutomationTests(unittest.TestCase):
 
     def test_prepare_stable_removes_beta_metadata_and_stage(self) -> None:
         root = self.copy_repo_fixture()
+        self.assert_unreleased(root, "1.0.41.6")
         try:
             result = self.run_script(
                 root,
@@ -101,7 +111,7 @@ class ReleaseAutomationTests(unittest.TestCase):
                 "--channel",
                 "stable",
                 "--version",
-                "1.0.41.3",
+                "1.0.41.6",
                 "--dockhand-version",
                 "1.0.41",
                 "--summary",
@@ -111,21 +121,22 @@ class ReleaseAutomationTests(unittest.TestCase):
             config = (root / "dockhand/config.yaml").read_text()
             repo = (root / "repository.yaml").read_text()
             self.assertIn('name: Dockhand by JigSawFr', config)
-            self.assertIn('version: "1.0.41.3"', config)
+            self.assertIn('version: "1.0.41.6"', config)
             self.assertNotIn('stage: experimental', config)
             self.assertNotIn('Beta by JigSawFr', config + repo)
             self.assertIn('name: Dockhand by JigSawFr', repo)
             self.assertIn("https://github.com/JigSawFr/dockhand-ha-addon'", repo)
             changelog = (root / "dockhand/CHANGELOG.md").read_text()
             readme = (root / "README.md").read_text()
-            self.assertIn("## 1.0.41.3", changelog)
+            self.assertIn("## 1.0.41.6", changelog)
             self.assertIn("Promote tested release automation to stable.", changelog)
-            self.assertIn("| Stable | `Dockhand by JigSawFr` | `main` | `1.0.41.3` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |", readme)
+            self.assertIn("| Stable | `Dockhand by JigSawFr` | `main` | `1.0.41.6` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |", readme)
         finally:
             shutil.rmtree(root)
 
     def test_prepare_beta_sets_dev_url_stage_and_matrix(self) -> None:
         root = self.copy_repo_fixture()
+        self.assert_unreleased(root, "1.0.42.1-beta.1")
         try:
             result = self.run_script(
                 root,
