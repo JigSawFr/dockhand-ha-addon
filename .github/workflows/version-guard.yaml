@@ -36,3 +36,19 @@ jobs:
 
       - name: Validate add-on metadata
         run: python3 scripts/check-addon-metadata.py
+
+  channel-sync:
+    name: Validate beta is not behind stable
+    if: github.base_ref == 'dev' || github.ref_name == 'dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Fetch stable channel
+        run: git fetch --no-tags origin main:refs/remotes/origin/main
+
+      - name: Validate beta has absorbed stable
+        run: python3 scripts/check-channel-sync.py

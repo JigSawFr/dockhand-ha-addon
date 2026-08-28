@@ -101,6 +101,79 @@ class ReleaseAutomationTests(unittest.TestCase):
         payload = json.loads(result.stdout)
         self.assertEqual(payload["version"], version)
 
+    def test_beta_plan_catches_up_when_stable_moved_ahead(self) -> None:
+        """A hotfix released straight to stable must not leave the beta planning a
+        promotion that moves stable backwards."""
+        root = self.copy_repo_fixture()
+        try:
+            result = self.run_script(
+                root,
+                "release-plan.py",
+                "--channel",
+                "beta",
+                "--current-version",
+                "1.0.41.2-beta.5",
+                "--dockhand-version",
+                "1.0.41",
+                "--released-stable",
+                "1.0.41.4",
+                "--json",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            plan = json.loads(result.stdout)
+            self.assertEqual(plan["version"], "1.0.41.5-beta.1")
+            self.assertEqual(plan["stable_version"], "1.0.41.5")
+            self.assertEqual(plan["reason"], "stable-catch-up")
+        finally:
+            shutil.rmtree(root)
+
+    def test_beta_plan_leaves_upstream_bump_alone(self) -> None:
+        """A new upstream base already sorts above stable, so it needs no catch-up."""
+        root = self.copy_repo_fixture()
+        try:
+            result = self.run_script(
+                root,
+                "release-plan.py",
+                "--channel",
+                "beta",
+                "--current-version",
+                "1.0.41.5-beta.1",
+                "--dockhand-version",
+                "1.0.43",
+                "--released-stable",
+                "1.0.41.4",
+                "--json",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            plan = json.loads(result.stdout)
+            self.assertEqual(plan["version"], "1.0.43.1-beta.1")
+            self.assertEqual(plan["reason"], "upstream-dockhand-bump")
+        finally:
+            shutil.rmtree(root)
+
+    def test_beta_plan_still_iterates_above_stable(self) -> None:
+        root = self.copy_repo_fixture()
+        try:
+            result = self.run_script(
+                root,
+                "release-plan.py",
+                "--channel",
+                "beta",
+                "--current-version",
+                "1.0.41.5-beta.1",
+                "--dockhand-version",
+                "1.0.41",
+                "--released-stable",
+                "1.0.41.4",
+                "--json",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            plan = json.loads(result.stdout)
+            self.assertEqual(plan["version"], "1.0.41.5-beta.2")
+            self.assertEqual(plan["reason"], "beta-iteration")
+        finally:
+            shutil.rmtree(root)
+
     def test_prepare_stable_removes_beta_metadata_and_stage(self) -> None:
         root = self.copy_repo_fixture()
         self.assert_unreleased(root, "1.0.41.6")
