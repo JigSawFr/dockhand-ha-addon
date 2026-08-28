@@ -60,19 +60,34 @@ def read_dockhand_version(root: Path) -> str:
     return match.group("version")
 
 
-def next_beta(current: AddonVersion, dockhand_version: str) -> tuple[str, str, str]:
+def next_beta(
+    current: AddonVersion, dockhand_version: str, released_stable: str | None = None
+) -> tuple[str, str, str]:
     if dockhand_version != current.base:
         stable_version = f"{dockhand_version}.1"
-        return f"{stable_version}-beta.1", stable_version, "upstream-dockhand-bump"
-
-    if current.is_beta:
+        version, reason = f"{stable_version}-beta.1", "upstream-dockhand-bump"
+    elif current.is_beta:
         stable_version = current.stable
         beta_iteration = (current.beta or 0) + 1
-        return f"{stable_version}-beta.{beta_iteration}", stable_version, "beta-iteration"
+        version, reason = f"{stable_version}-beta.{beta_iteration}", "beta-iteration"
+    else:
+        next_revision = (current.revision or 0) + 1
+        stable_version = f"{current.base}.{next_revision}"
+        version, reason = f"{stable_version}-beta.1", "wrapper-beta"
 
-    next_revision = (current.revision or 0) + 1
-    stable_version = f"{current.base}.{next_revision}"
-    return f"{stable_version}-beta.1", stable_version, "wrapper-beta"
+    if released_stable is None:
+        return version, stable_version, reason
+
+    # A beta is promoted verbatim to stable, so its target must stay above what
+    # stable already ships. Without this, a hotfix released straight to stable
+    # leaves the beta channel planning a promotion that moves stable backwards.
+    target = parse_version(stable_version)
+    released = parse_version(released_stable)
+    if target.base == released.base and (target.revision or 0) <= (released.revision or 0):
+        stable_version = f"{released.base}.{(released.revision or 0) + 1}"
+        return f"{stable_version}-beta.1", stable_version, "stable-catch-up"
+
+    return version, stable_version, reason
 
 
 def stable_from(current: AddonVersion) -> tuple[str, str]:
@@ -81,12 +96,18 @@ def stable_from(current: AddonVersion) -> tuple[str, str]:
     return current.raw, "stable-current"
 
 
-def plan(root: Path, channel: str, current_version: str | None, dockhand_version: str | None) -> dict[str, object]:
+def plan(
+    root: Path,
+    channel: str,
+    current_version: str | None,
+    dockhand_version: str | None,
+    released_stable: str | None = None,
+) -> dict[str, object]:
     current = parse_version(current_version or read_config_version(root))
     bundled_dockhand = dockhand_version or read_dockhand_version(root)
 
     if channel == "beta":
-        version, stable_version, reason = next_beta(current, bundled_dockhand)
+        version, stable_version, reason = next_beta(current, bundled_dockhand, released_stable)
         prerelease = True
         required_branch = "dev"
     elif channel == "stable":
@@ -115,11 +136,22 @@ def main() -> int:
     parser.add_argument("--channel", choices=["beta", "stable"], required=True)
     parser.add_argument("--current-version")
     parser.add_argument("--dockhand-version")
+    parser.add_argument(
+        "--released-stable",
+        help="Version currently published on the stable channel; keeps a beta from "
+        "planning a promotion that would move stable backwards",
+    )
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--github-output")
     args = parser.parse_args()
 
-    values = plan(args.root, args.channel, args.current_version, args.dockhand_version)
+    values = plan(
+        args.root,
+        args.channel,
+        args.current_version,
+        args.dockhand_version,
+        args.released_stable,
+    )
 
     if args.github_output:
         out = Path(args.github_output)
