@@ -112,7 +112,7 @@ Defense-in-depth included by the wrapper:
 | Channel | Home Assistant repository | Branch | Current version | Versions | GHCR tags |
 |---|---|---:|---:|---|---|
 | Stable | `Dockhand by JigSawFr` | `main` | `1.0.41.4` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |
-| Beta | `Dockhand Beta by JigSawFr` | `dev` | `1.0.41.5-beta.1` | `X.Y.Z.N-beta.M` | `<version>`, `beta` |
+| Beta | `Dockhand Beta by JigSawFr` | `dev` | `1.0.43.1-beta.1` | `X.Y.Z.N-beta.M` | `<version>`, `beta` |
 
 Stable users do not receive beta builds unless they explicitly add the `#dev` repository URL.
 
