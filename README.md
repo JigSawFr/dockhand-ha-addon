@@ -98,7 +98,8 @@ That is powerful access. Treat it like Portainer:
 Defense-in-depth included by the wrapper:
 
 - Home Assistant's admin-only panel default;
-- optional direct port disabled by default;
+- dedicated direct proxy endpoint on `3001/tcp`, denied without a configured proxy token and with host publication disabled by default;
+- Dockhand itself kept on loopback-only `127.0.0.1:3000`;
 - Docker `HEALTHCHECK` using the packaged healthcheck helper;
 - Ingress streaming support for long-lived UI flows;
 - packaged AppArmor profile validation on beta before stable promotion;
@@ -110,7 +111,7 @@ Defense-in-depth included by the wrapper:
 
 | Channel | Home Assistant repository | Branch | Current version | Versions | GHCR tags |
 |---|---|---:|---:|---|---|
-| Stable | `Dockhand by JigSawFr` | `main` | `1.0.41.2` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |
+| Stable | `Dockhand by JigSawFr` | `main` | `1.0.41.4` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |
 | Beta | `Dockhand Beta by JigSawFr` | `dev` | `1.0.43.1-beta.1` | `X.Y.Z.N-beta.M` | `<version>`, `beta` |
 
 Stable users do not receive beta builds unless they explicitly add the `#dev` repository URL.

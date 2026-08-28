@@ -6,6 +6,8 @@ scripts/test-backup-db.sh
 scripts/test-seed-ha-environment.sh
 scripts/test-diagnostics-redaction.sh
 python3 scripts/test-release-automation.py
+scripts/test-direct-proxy-auth.sh
+python3 scripts/test-direct-proxy-config.py
 scripts/release-dry-run.py --json >/dev/null
 if command -v node >/dev/null 2>&1; then
     node scripts/test-ingress-shim.js

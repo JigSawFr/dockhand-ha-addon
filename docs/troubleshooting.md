@@ -50,18 +50,32 @@ Confirm:
 - add-on config includes Docker API access
 - Home Assistant Supervisor is healthy
 
-## Direct port access does not work
+## Direct reverse-proxy access
 
-Direct access is disabled by default.
+Dockhand itself stays bound to loopback-only `127.0.0.1:3000`. The wrapper exposes a separate nginx endpoint on container port `3001` for trusted sibling add-ons and reverse proxies.
 
-If you intentionally want direct access:
+For a reverse proxy on the same Home Assistant add-on network, configure `direct_proxy_token` in the Dockhand add-on and use:
 
-1. Open the add-on network settings.
-2. Map `3000/tcp` to a host port.
-3. Restrict access to a trusted network or authenticated reverse proxy.
-4. Configure Dockhand authentication when appropriate.
+```text
+http://<dockhand-add-on-hostname>:3001
+```
 
-If you only use the Home Assistant sidebar, leave `3000/tcp` disabled.
+The reverse proxy must add the same private value as an upstream-only header:
+
+```nginx
+proxy_set_header Host $host;
+proxy_set_header X-Forwarded-Host $host;
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_set_header X-Dockhand-Proxy-Token "<same-private-token>";
+```
+
+The trusted proxy must overwrite these forwarding headers instead of preserving client-supplied values. A `403` from port `3001` means the token is missing or does not match. Do not expose this header to downstream clients or logs.
+
+Do not target `8099`: it is reserved for Home Assistant Ingress and rejects other source addresses. Do not target `3000`: it is intentionally loopback-only.
+
+If the reverse proxy is outside the Home Assistant add-on network, map optional `3001/tcp` to a host port in the add-on network settings. Keep it disabled when the internal add-on hostname is reachable.
+
+Keep the token private, enable Dockhand authentication, and do not expose the host-published port directly to the public internet.
 
 ## Database corruption
 

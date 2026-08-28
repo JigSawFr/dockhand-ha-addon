@@ -39,6 +39,8 @@ jobs:
           scripts/test-backup-db.sh
           scripts/test-seed-ha-environment.sh
           scripts/test-diagnostics-redaction.sh
+          scripts/test-direct-proxy-auth.sh
+          python3 scripts/test-direct-proxy-config.py
           node scripts/test-ingress-shim.js
           python3 scripts/test-release-automation.py
           scripts/release-dry-run.py --json

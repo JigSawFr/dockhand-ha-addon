@@ -5,6 +5,40 @@
 - Published from the `dev` channel for testing before a stable release.
 - Prepared by the release automation workflow.
 
+## 1.0.41.5-beta.1
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Sync the beta channel with stable `1.0.41.4`: the direct proxy endpoint on `3001` with a required `direct_proxy_token`, and the runtime `git` and `openssh-client` tools for Git stack SSH deploys.
+- Keep the release automation, promotion workflow, and channel guards introduced on the beta channel.
+- Does not change the bundled Dockhand application version (`fnsys/dockhand:v1.0.41`).
+
+## 1.0.41.4
+
+- Add a dedicated nginx direct endpoint on internal port `3001` for trusted sibling add-ons and reverse proxies.
+- Require an exact, masked `direct_proxy_token` on every network request to port `3001`; deny access by default and strip the token before proxying to Dockhand.
+- Keep Dockhand bound to loopback-only `127.0.0.1:3000` and keep port `8099` restricted to the Home Assistant Ingress gateway.
+- Keep `/api/activity/events` and `/api/audit/events` unbuffered on both proxy paths, alongside the existing event and stream endpoints.
+- Replace the ineffective optional `3000/tcp` host mapping with optional `3001/tcp`, disabled by default.
+- Add static guards for stream routing and redirect rules, plus Docker E2E coverage for direct authentication, listener isolation, real login redirects and Ingress shim behavior.
+- Does not change the bundled Dockhand application version (`fnsys/dockhand:v1.0.41`).
+
+## 1.0.41.3
+
+- Restore Git stack deploy/redeploy support in the Home Assistant wrapper by shipping runtime `git` and `openssh-client` tools.
+- Fix SSH-backed repositories failing before clone with `Cannot read properties of undefined (reading 'toString')` when `ssh-keygen` is unavailable.
+- Does not change the bundled Dockhand application version (`fnsys/dockhand:v1.0.41`).
+
+## 1.0.41.2
+
+- Stable Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.41`.
+- Create a default `Home Assistant` Docker environment on startup when no equivalent `/var/run/docker.sock` environment exists.
+- Add `seed_home_assistant_environment`, enabled by default, for users who prefer manual environment creation.
+- Enable Home Assistant ingress streaming and add a native Docker `HEALTHCHECK`.
+- Add backup hooks, redacted diagnostics, support bundle, release dry-run checks, and runtime regression tests.
+- Add real Docker-based Home Assistant Ingress E2E coverage plus SQLite seed/backup/diagnostics tests.
+- Add Renovate/Dependabot automation, focused issue templates, SBOM/provenance, and cosign signing in the release workflow.
+- Promote the tested beta wrapper changes to stable without changing the bundled Dockhand application version.
+
 ## 1.0.41.2-beta.5
 
 - Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.

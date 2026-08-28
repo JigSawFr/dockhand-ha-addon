@@ -42,20 +42,25 @@ Run this add-on only if you accept that trade-off.
 - Keep the add-on updated.
 - Avoid running unknown third-party containers from Dockhand.
 
-## Optional direct access port
+## Optional direct proxy endpoint
 
-The add-on declares an optional `3000/tcp` port, disabled by default.
+Dockhand remains bound to loopback-only `127.0.0.1:3000`. A separate nginx listener on container port `3001` supports trusted sibling add-ons and reverse proxies without exposing the upstream application directly.
 
-Enabling this port exposes Dockhand directly and bypasses Home Assistant Ingress. That means Home Assistant's Ingress path handling and access controls no longer protect the Dockhand UI.
+The listener is deny-by-default. Network clients must send the exact `direct_proxy_token` value in the `X-Dockhand-Proxy-Token` header; the option is empty by default and masked in the Home Assistant UI. The wrapper validates the token format, stores the generated nginx auth map with mode `0600`, and removes the token header before forwarding the request to Dockhand.
 
-Only enable direct access when all of the following are true:
+The add-on declares optional `3001/tcp` host publication, disabled by default. A reverse proxy on the same Home Assistant add-on network can use the add-on hostname on port `3001` without publishing that port on the host, but it still requires the token.
 
-- you are on a trusted private network, or you place Dockhand behind your own authenticated reverse proxy;
-- Dockhand authentication is configured when appropriate;
+Using this endpoint bypasses Home Assistant Ingress path handling and access controls. Port `8099` remains restricted to the Home Assistant Ingress gateway.
+
+Only use direct proxy access when all of the following are true:
+
+- the caller sends the private proxy token and does not expose it to clients or logs;
+- the caller is a trusted sibling add-on, private-network client, or authenticated reverse proxy;
+- Dockhand authentication is enabled;
 - you understand that Dockhand controls Docker through `/var/run/docker.sock`;
-- you do not expose the port directly to the public internet.
+- you do not publish the port directly to the public internet.
 
-Leave the port disabled for the normal Home Assistant sidebar/Ingress workflow.
+Leave host publication disabled for the normal Home Assistant sidebar/Ingress workflow and for same-network add-on proxies.
 
 ## Data stored by the add-on
 
