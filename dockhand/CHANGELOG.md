@@ -1,3 +1,24 @@
+## 1.0.43.1
+
+- Promote tested beta 1.0.43.1-beta.1 to stable.
+- Stable Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.43`.
+- Promoted from the tested beta channel.
+- Prepared by the release automation workflow.
+
+## 1.0.43.1-beta.1
+
+- Prepare beta validation for Dockhand upstream v1.0.43.
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.43`.
+- Published from the `dev` channel for testing before a stable release.
+- Prepared by the release automation workflow.
+
+## 1.0.41.5-beta.1
+
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.41`.
+- Sync the beta channel with stable `1.0.41.4`: the direct proxy endpoint on `3001` with a required `direct_proxy_token`, and the runtime `git` and `openssh-client` tools for Git stack SSH deploys.
+- Keep the release automation, promotion workflow, and channel guards introduced on the beta channel.
+- Does not change the bundled Dockhand application version (`fnsys/dockhand:v1.0.41`).
+
 ## 1.0.41.4
 
 - Add a dedicated nginx direct endpoint on internal port `3001` for trusted sibling add-ons and reverse proxies.

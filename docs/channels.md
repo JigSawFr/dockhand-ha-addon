@@ -6,8 +6,8 @@ Dockhand uses two Home Assistant repository channels: **stable** for normal use 
 
 | Channel | Repository name in Home Assistant | URL | Branch | Current version | Versions | GHCR tags | GitHub release |
 |---|---|---|---:|---:|---|---|---|
-| Stable | `Dockhand by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon` | `main` | `1.0.41.4` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` | regular |
-| Beta | `Dockhand Beta by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon#dev` | `dev` | `1.0.41.2-beta.5` | `X.Y.Z.N-beta.M` | `<version>`, `beta` | prerelease |
+| Stable | `Dockhand by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon` | `main` | `1.0.43.1` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` | regular |
+| Beta | `Dockhand Beta by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon#dev` | `dev` | `1.0.43.1-beta.1` | `X.Y.Z.N-beta.M` | `<version>`, `beta` | prerelease |
 
 Home Assistant supports installing a repository branch by appending `#branch` to the repository URL. Stable users stay on `main`; beta users explicitly opt into `#dev`.
 
@@ -69,6 +69,18 @@ When a beta has been validated:
 3. Publish `v1.0.41.2` from `main`.
 
 The release workflow refuses prerelease versions on the stable path and refuses non-beta versions on the beta path.
+
+## Keeping beta ahead of stable
+
+A fix released straight to `main` — a hotfix that never went through beta — leaves `dev` behind. That gap is not cosmetic: `dev` is what gets promoted back to stable, so the next beta ships a wrapper *behind* stable, and promoting it republishes the regression.
+
+Three things keep the gap from going unnoticed:
+
+- **`scripts/check-channel-sync.py`** fails while `dev` is behind `main`. It asserts that every `main` commit is reachable from `dev`, that the current stable release appears in the beta changelog, and that the beta's promotion target sorts above the released stable version. The `Version guard` workflow runs it on every pull request to `dev`, and `scripts/preflight.sh` runs it locally.
+- **`.github/workflows/backmerge-stable.yaml`** opens a `main` → `dev` pull request as soon as `main` moves, so the back-merge is proposed rather than remembered.
+- **`release-plan.py --released-stable`** makes the beta planner aware of what stable already ships. Without it, a beta iterating on an older base plans a promotion that moves stable backwards; with it, the planner jumps to the next free revision above stable (`stable-catch-up`).
+
+Back-merges must land as merge commits, not squashes: a squash does not make `main` an ancestor of `dev`, so the merge base never advances and every later back-merge replays the same conflicts.
 
 ## Why keep the same add-on slug?
 

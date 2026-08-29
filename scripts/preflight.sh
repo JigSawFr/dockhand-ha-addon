@@ -5,6 +5,7 @@ python3 -m py_compile scripts/*.py
 scripts/test-backup-db.sh
 scripts/test-seed-ha-environment.sh
 scripts/test-diagnostics-redaction.sh
+python3 scripts/test-release-automation.py
 scripts/test-direct-proxy-auth.sh
 python3 scripts/test-direct-proxy-config.py
 scripts/release-dry-run.py --json >/dev/null
@@ -16,6 +17,11 @@ fi
 python3 scripts/check-version-sync.py
 python3 scripts/check-public-privacy.py
 python3 scripts/check-addon-metadata.py
+if git rev-parse --verify --quiet origin/main >/dev/null; then
+    python3 scripts/check-channel-sync.py
+else
+    echo 'origin/main unavailable; skipping channel sync check'
+fi
 
 python3 - <<'PY'
 import json
