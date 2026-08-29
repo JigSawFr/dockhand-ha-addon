@@ -6,8 +6,8 @@ Dockhand uses two Home Assistant repository channels: **stable** for normal use 
 
 | Channel | Repository name in Home Assistant | URL | Branch | Current version | Versions | GHCR tags | GitHub release |
 |---|---|---|---:|---:|---|---|---|
-| Stable | `Dockhand by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon` | `main` | `1.0.44.1` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` | regular |
-| Beta | `Dockhand Beta by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon#dev` | `dev` | `1.0.44.1-beta.1` | `X.Y.Z.N-beta.M` | `<version>`, `beta` | prerelease |
+| Stable | `Dockhand by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon` | `main` | `1.0.45.1` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` | regular |
+| Beta | `Dockhand Beta by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon#dev` | `dev` | `1.0.45.1-beta.1` | `X.Y.Z.N-beta.M` | `<version>`, `beta` | prerelease |
 
 Home Assistant supports installing a repository branch by appending `#branch` to the repository URL. Stable users stay on `main`; beta users explicitly opt into `#dev`.
 
