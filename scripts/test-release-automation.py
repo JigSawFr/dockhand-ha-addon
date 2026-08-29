@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -171,6 +172,66 @@ class ReleaseAutomationTests(unittest.TestCase):
             plan = json.loads(result.stdout)
             self.assertEqual(plan["version"], "1.0.41.5-beta.2")
             self.assertEqual(plan["reason"], "beta-iteration")
+        finally:
+            shutil.rmtree(root)
+
+    def test_beta_plan_reads_released_stable_from_a_git_ref(self) -> None:
+        """--stable-ref is what the normalize workflow uses, so it must resolve a real
+        ref rather than relying on shell plumbing to pass the value in."""
+        root = self.copy_repo_fixture()
+        try:
+            # The ref stands in for main, so it must carry a stable version.
+            config = root / "dockhand/config.yaml"
+            config.write_text(
+                re.sub(
+                    r'^version: "[^"]+"$', 'version: "1.0.41.4"', config.read_text(), count=1, flags=re.M
+                )
+            )
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+            subprocess.run(
+                ["git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "stable"],
+                cwd=root,
+                check=True,
+            )
+            subprocess.run(["git", "tag", "stable-ref"], cwd=root, check=True)
+
+            result = self.run_script(
+                root,
+                "release-plan.py",
+                "--channel",
+                "beta",
+                "--current-version",
+                "1.0.41.2-beta.5",
+                "--dockhand-version",
+                "1.0.41",
+                "--stable-ref",
+                "stable-ref",
+                "--json",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            plan = json.loads(result.stdout)
+            # Same outcome as passing --released-stable 1.0.41.4 by hand.
+            self.assertEqual(plan["version"], "1.0.41.5-beta.1")
+            self.assertEqual(plan["reason"], "stable-catch-up")
+        finally:
+            shutil.rmtree(root)
+
+    def test_beta_plan_reports_an_unreadable_stable_ref(self) -> None:
+        root = self.copy_repo_fixture()
+        try:
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            result = self.run_script(
+                root,
+                "release-plan.py",
+                "--channel",
+                "beta",
+                "--stable-ref",
+                "no-such-ref",
+                "--json",
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("Could not read dockhand/config.yaml from no-such-ref", result.stderr)
         finally:
             shutil.rmtree(root)
 

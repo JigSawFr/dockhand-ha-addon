@@ -82,18 +82,12 @@ jobs:
           fi
 
           git fetch --no-tags origin main:refs/remotes/origin/main
-          released_stable=$(git show origin/main:dockhand/config.yaml | python3 - <<'PY'
-          import re
-          import sys
-          print(re.search(r'^version:\s+"([^"]+)"$', sys.stdin.read(), re.M).group(1))
-          PY
-          )
 
           python3 scripts/release-plan.py \
             --channel beta \
             --current-version "${current_version}" \
             --dockhand-version "${dockhand_version}" \
-            --released-stable "${released_stable}" \
+            --stable-ref origin/main \
             --github-output "$GITHUB_OUTPUT"
 
           version=$(awk -F= '$1 == "version" { print $2 }' "$GITHUB_OUTPUT" | tail -1)
