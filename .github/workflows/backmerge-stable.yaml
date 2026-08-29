@@ -30,6 +30,7 @@ jobs:
         with:
           ref: dev
           fetch-depth: 0
+          token: ${{ secrets.AUTOMATION_PAT || github.token }}
 
       - name: Skip when dev already carries main
         id: gap
@@ -70,7 +71,7 @@ jobs:
       - name: Push and open the pull request
         if: steps.gap.outputs.needed == 'true' && steps.merge.outputs.conflicted == 'false'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT || github.token }}
           BRANCH: ${{ steps.merge.outputs.branch }}
         run: |
           set -euo pipefail
@@ -92,9 +93,9 @@ jobs:
           channel-identity files before merging — the beta channel must keep its own
           name, `repository.yaml` `#dev` URL and `stage: experimental`.
 
-          Note: pull requests opened with `GITHUB_TOKEN` do not start workflow runs.
-          Approve the runs on this pull request, or push an empty-free change, before
-          relying on its checks.
+          Merge this with a merge commit or a fast-forward, never a squash: a squash
+          does not record `main` as a parent, so it stops being an ancestor of `dev`
+          and the next back-merge replays the same conflicts.
           BODY
           )"
 
