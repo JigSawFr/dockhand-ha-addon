@@ -1,9 +1,16 @@
-## 1.0.43.1
+## 1.0.44.1
 
-- Promote tested beta 1.0.43.1-beta.1 to stable.
-- Stable Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.43`.
+- Promote tested beta 1.0.44.1-beta.1 to stable.
+- Stable Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.44`.
 - Promoted from the tested beta channel.
-- Prepared by the release automation workflow.
+- Dockhand 1.0.44 release notes: https://github.com/Finsys/dockhand/releases/tag/v1.0.44
+
+## 1.0.44.1-beta.1
+
+- Prepare beta validation for Dockhand upstream v1.0.44.
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.44`.
+- Published from the `dev` channel for testing before a stable release.
+- Dockhand 1.0.44 release notes: https://github.com/Finsys/dockhand/releases/tag/v1.0.44
 
 ## 1.0.43.1-beta.1
 

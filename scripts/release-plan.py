@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -57,6 +58,23 @@ def read_dockhand_version(root: Path) -> str:
     match = DOCKHAND_FROM_RE.search(text)
     if not match:
         raise SystemExit("Could not parse Dockhand image version from dockhand/Dockerfile")
+    return match.group("version")
+
+
+def read_version_from_ref(root: Path, ref: str) -> str:
+    """Read the add-on version recorded on another branch, e.g. the stable channel."""
+    result = subprocess.run(
+        ["git", "show", f"{ref}:dockhand/config.yaml"],
+        cwd=root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise SystemExit(f"Could not read dockhand/config.yaml from {ref}: {result.stderr.strip()}")
+    match = CONFIG_VERSION_RE.search(result.stdout)
+    if not match:
+        raise SystemExit(f"Could not parse the add-on version from {ref}:dockhand/config.yaml")
     return match.group("version")
 
 
@@ -141,16 +159,26 @@ def main() -> int:
         help="Version currently published on the stable channel; keeps a beta from "
         "planning a promotion that would move stable backwards",
     )
+    parser.add_argument(
+        "--stable-ref",
+        help="Git ref holding the stable channel, e.g. origin/main. Reads the released "
+        "stable version from it, so automation does not have to plumb the value in. "
+        "Ignored when --released-stable is given.",
+    )
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--github-output")
     args = parser.parse_args()
+
+    released_stable = args.released_stable
+    if released_stable is None and args.stable_ref:
+        released_stable = read_version_from_ref(args.root, args.stable_ref)
 
     values = plan(
         args.root,
         args.channel,
         args.current_version,
         args.dockhand_version,
-        args.released_stable,
+        released_stable,
     )
 
     if args.github_output:
