@@ -56,11 +56,21 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git switch -c "${branch}"
 
-          if git merge --no-ff --no-edit origin/main; then
+          # A plain merge conflicts on the channel-identity files every single
+          # time, because rewriting them is what a promotion does. The resolver
+          # answers those and only those; anything else still stops here.
+          #
+          # Run main's copy, not dev's: it is the one this workflow file was
+          # written against, and dev does not carry it until the first
+          # back-merge lands. Kept out of the work tree so the merge sees a
+          # clean checkout.
+          resolver="${RUNNER_TEMP}/backmerge-resolve.py"
+          git show "${GITHUB_SHA}:scripts/backmerge-resolve.py" > "${resolver}"
+
+          if python3 "${resolver}" --root . --stable-ref origin/main; then
             echo "conflicted=false" >> "$GITHUB_OUTPUT"
           else
             echo "conflicted=true" >> "$GITHUB_OUTPUT"
-            git merge --abort
             exit 0
           fi
 
@@ -89,9 +99,14 @@ jobs:
           leaving the gap open means the next beta ships a wrapper behind stable, and
           promoting it republishes the regression.
 
-          This back-merge was produced automatically and merged cleanly. Review the
-          channel-identity files before merging — the beta channel must keep its own
-          name, `repository.yaml` `#dev` URL and `stage: experimental`.
+          This back-merge was produced automatically. The channel-identity files
+          conflict on every promotion by construction, so they were resolved in
+          favour of `main` and then re-stamped with the beta identity by
+          `prepare-release-channel.py`; the changelog kept both sides. Review those
+          files before merging — the beta channel must keep its own name,
+          `repository.yaml` `#dev` URL and `stage: experimental` — and note that the
+          beta version was re-planned so its promotion target stays above the
+          released stable version.
 
           Merge this with a merge commit or a fast-forward, never a squash: a squash
           does not record `main` as a parent, so it stops being an ancestor of `dev`
@@ -102,6 +117,7 @@ jobs:
       - name: Report a conflicted back-merge
         if: steps.gap.outputs.needed == 'true' && steps.merge.outputs.conflicted == 'true'
         run: |
-          echo "::error::main cannot be back-merged into dev automatically; resolve the conflict by hand."
+          echo "::error::main conflicts with dev outside the channel-identity files; resolve it by hand."
+          echo "The conflicting paths are listed as conflict=<path> in the merge step's log."
           echo "The Version guard channel-sync job will keep failing beta work until dev carries main."
           exit 1
