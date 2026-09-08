@@ -5,6 +5,20 @@
 - Published from the `dev` channel for testing before a stable release.
 - Dockhand 1.0.46 release notes: https://github.com/Finsys/dockhand/releases/tag/v1.0.46
 
+## 1.0.45.2-beta.1
+
+- Back-merge the stable channel into beta so the next promotion cannot move stable backwards.
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.45`.
+- Published from the `dev` channel for testing before a stable release.
+- Dockhand 1.0.45 release notes: https://github.com/Finsys/dockhand/releases/tag/v1.0.45
+
+## 1.0.45.1
+
+- Promote tested beta 1.0.45.1-beta.1 to stable.
+- Stable Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.45`.
+- Promoted from the tested beta channel.
+- Dockhand 1.0.45 release notes: https://github.com/Finsys/dockhand/releases/tag/v1.0.45
+
 ## 1.0.45.1-beta.1
 
 - Prepare beta validation for Dockhand upstream v1.0.45.

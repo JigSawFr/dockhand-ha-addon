@@ -6,7 +6,7 @@ Dockhand uses two Home Assistant repository channels: **stable** for normal use 
 
 | Channel | Repository name in Home Assistant | URL | Branch | Current version | Versions | GHCR tags | GitHub release |
 |---|---|---|---:|---:|---|---|---|
-| Stable | `Dockhand by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon` | `main` | `1.0.41.4` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` | regular |
+| Stable | `Dockhand by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon` | `main` | `1.0.45.1` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` | regular |
 | Beta | `Dockhand Beta by JigSawFr` | `https://github.com/JigSawFr/dockhand-ha-addon#dev` | `dev` | `1.0.46.1-beta.1` | `X.Y.Z.N-beta.M` | `<version>`, `beta` | prerelease |
 
 Home Assistant supports installing a repository branch by appending `#branch` to the repository URL. Stable users stay on `main`; beta users explicitly opt into `#dev`.
@@ -78,6 +78,7 @@ Three things keep the gap from going unnoticed:
 
 - **`scripts/check-channel-sync.py`** fails while `dev` is behind `main`. It asserts that every `main` commit is reachable from `dev`, that the current stable release appears in the beta changelog, and that the beta's promotion target sorts above the released stable version. The `Version guard` workflow runs it on every pull request to `dev`, and `scripts/preflight.sh` runs it locally.
 - **`.github/workflows/backmerge-stable.yaml`** opens a `main` → `dev` pull request as soon as `main` moves, so the back-merge is proposed rather than remembered.
+- **`scripts/backmerge-resolve.py`** performs that merge. The two channels are *supposed* to disagree about channel identity — the add-on name, the version, `stage: experimental`, the `#dev` repository URL and the two channel matrix rows — and rewriting exactly those lines is what a promotion does, so a plain `git merge main` conflicts on them every single time. The resolver answers that one known conflict and nothing else: the channel-owned files take the stable side and are then re-stamped as beta by `prepare-release-channel.py`, the changelog keeps both sides so the beta inherits the stable release entry, the beta version is re-planned by `release-plan.py`, and any other conflicting path aborts the merge for a human. Pre-stage the answer to such a path and rerun with `--resume` to have the identity and version handled the same way.
 - **`release-plan.py --released-stable`** makes the beta planner aware of what stable already ships. Without it, a beta iterating on an older base plans a promotion that moves stable backwards; with it, the planner jumps to the next free revision above stable (`stable-catch-up`).
 
 Back-merges must land as merge commits, not squashes: a squash does not make `main` an ancestor of `dev`, so the merge base never advances and every later back-merge replays the same conflicts. Ordinary pull requests branched from `dev` can be squashed as usual — only a pull request that carries `main` as a parent needs this care.
