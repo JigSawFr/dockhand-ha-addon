@@ -72,6 +72,35 @@ class ReleaseAutomationTests(unittest.TestCase):
             check=True,
         )
 
+    def assert_changelog_entries_are_separated(self, changelog: str) -> None:
+        lines = changelog.splitlines()
+        glued = [
+            line
+            for index, line in enumerate(lines)
+            if line.startswith("## ") and index > 0 and lines[index - 1].strip()
+        ]
+        self.assertEqual(glued, [], f"changelog entries lost their blank separator: {glued}")
+
+    def test_union_merge_keeps_the_blank_line_between_entries(self) -> None:
+        """A union merge butts the two sides together at the seam. Home Assistant
+        reads this file, so the entry the seam lands on must not be swallowed."""
+        module = self.load_backmerge_resolve()
+        seam = (
+            "## 1.0.46.1-beta.1\n\n- new upstream\n"
+            "## 1.0.45.2-beta.1\n\n- back-merge\n\n## 1.0.45.1\n\n- promoted\n"
+        )
+        self.assert_changelog_entries_are_separated(module.restore_entry_spacing(seam))
+
+    def load_backmerge_resolve(self):
+        from importlib import util
+
+        spec = util.spec_from_file_location(
+            "backmerge_resolve", ROOT / "scripts" / "backmerge-resolve.py"
+        )
+        module = util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
     def assert_unreleased(self, root: Path, version: str) -> None:
         """prepare-release-channel.py is idempotent, so a released version writes no entry."""
         changelog = (root / "dockhand/CHANGELOG.md").read_text()
@@ -326,6 +355,7 @@ class ReleaseAutomationTests(unittest.TestCase):
             changelog = (root / "dockhand/CHANGELOG.md").read_text()
             self.assertIn("## 1.0.45.2\n", changelog)
             self.assertIn("## 1.0.45.3-beta.1\n", changelog)
+            self.assert_changelog_entries_are_separated(changelog)
             # Ancestry is the whole point: a squash would not restore it.
             ancestry = subprocess.run(
                 ["git", "merge-base", "--is-ancestor", "main", "HEAD"], cwd=root, check=False
