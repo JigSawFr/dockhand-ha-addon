@@ -1,3 +1,10 @@
+## 1.0.46.1-beta.2
+
+- Back-merge the stable channel into beta so the next promotion cannot move stable backwards.
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.46`.
+- Published from the `dev` channel for testing before a stable release.
+- Dockhand 1.0.46 release notes: https://github.com/Finsys/dockhand/releases/tag/v1.0.46
+
 ## 1.0.46.1-beta.1
 
 - Prepare beta validation for Dockhand upstream v1.0.46.
