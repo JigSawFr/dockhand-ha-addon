@@ -31,11 +31,46 @@ class ReleaseAutomationTests(unittest.TestCase):
             "README.md",
             "docs/channels.md",
             "repository.yaml",
+            # backmerge-resolve.py drives the tree's own release scripts, the way
+            # it does on a runner checkout.
+            "scripts/release-plan.py",
+            "scripts/prepare-release-channel.py",
         ]:
             dest = tmp / rel
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / rel, dest)
         return tmp
+
+    def init_channel_fixture(self, root: Path) -> None:
+        """A `main` carrying stable identity and a `dev` carrying beta identity,
+        diverged the way the two channels always diverge."""
+        subprocess.run(["git", "init", "-q", "-b", "main"], cwd=root, check=True)
+        # backmerge-resolve.py commits on its own, so the identity must be on disk.
+        subprocess.run(["git", "config", "user.name", "t"], cwd=root, check=True)
+        subprocess.run(["git", "config", "user.email", "t@t"], cwd=root, check=True)
+        self.commit(root, "base")
+        subprocess.run(["git", "checkout", "-q", "-b", "dev"], cwd=root, check=True)
+        self.run_script(
+            root, "prepare-release-channel.py", "--channel", "beta",
+            "--version", "1.0.45.1-beta.1", "--dockhand-version", "1.0.45",
+        )
+        self.commit(root, "beta")
+        subprocess.run(["git", "checkout", "-q", "main"], cwd=root, check=True)
+        # A hotfix released straight to stable: exactly what leaves dev behind.
+        self.run_script(
+            root, "prepare-release-channel.py", "--channel", "stable",
+            "--version", "1.0.45.2", "--dockhand-version", "1.0.45",
+        )
+        self.commit(root, "stable hotfix")
+        subprocess.run(["git", "checkout", "-q", "dev"], cwd=root, check=True)
+
+    def commit(self, root: Path, message: str) -> None:
+        subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+        subprocess.run(
+            ["git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", message],
+            cwd=root,
+            check=True,
+        )
 
     def assert_unreleased(self, root: Path, version: str) -> None:
         """prepare-release-channel.py is idempotent, so a released version writes no entry."""
@@ -265,6 +300,58 @@ class ReleaseAutomationTests(unittest.TestCase):
             self.assertIn("## 1.0.41.6", changelog)
             self.assertIn("Promote tested release automation to stable.", changelog)
             self.assertIn("| Stable | `Dockhand by JigSawFr` | `main` | `1.0.41.6` | `X.Y.Z`, `X.Y.Z.N` | `<version>`, `latest` |", readme)
+        finally:
+            shutil.rmtree(root)
+
+    def test_backmerge_resolves_the_channel_divergence_it_is_supposed_to(self) -> None:
+        """main and dev always disagree about channel identity, so a plain merge
+        conflicts on every promotion. Those conflicts have a known answer and must
+        not block the back-merge."""
+        root = self.copy_repo_fixture()
+        try:
+            self.init_channel_fixture(root)
+            result = self.run_script(root, "backmerge-resolve.py", "--stable-ref", "main")
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            self.assertIn("resolution=resolved", result.stdout)
+
+            config = (root / "dockhand/config.yaml").read_text()
+            repo = (root / "repository.yaml").read_text()
+            # Beta identity survives the stable side.
+            self.assertIn("name: Dockhand Beta by JigSawFr", config)
+            self.assertIn("stage: experimental", config)
+            self.assertIn("dockhand-ha-addon#dev", repo)
+            # And the planner lifted the beta above the stable hotfix it just took.
+            self.assertIn('version: "1.0.45.3-beta.1"', config)
+            # The stable release entry came across; check-channel-sync.py looks for it.
+            changelog = (root / "dockhand/CHANGELOG.md").read_text()
+            self.assertIn("## 1.0.45.2\n", changelog)
+            self.assertIn("## 1.0.45.3-beta.1\n", changelog)
+            # Ancestry is the whole point: a squash would not restore it.
+            ancestry = subprocess.run(
+                ["git", "merge-base", "--is-ancestor", "main", "HEAD"], cwd=root, check=False
+            )
+            self.assertEqual(ancestry.returncode, 0, "main must be an ancestor of dev after a back-merge")
+        finally:
+            shutil.rmtree(root)
+
+    def test_backmerge_refuses_a_conflict_it_has_no_answer_for(self) -> None:
+        """Resolving the known divergence must not turn into resolving everything."""
+        root = self.copy_repo_fixture()
+        try:
+            self.init_channel_fixture(root)
+            dockerfile = root / "dockhand/Dockerfile"
+            dockerfile.write_text(dockerfile.read_text() + "\n# beta side\n")
+            self.commit(root, "beta edit")
+            subprocess.run(["git", "checkout", "-q", "main"], cwd=root, check=True)
+            dockerfile.write_text(dockerfile.read_text() + "\n# stable side\n")
+            self.commit(root, "stable edit")
+            subprocess.run(["git", "checkout", "-q", "dev"], cwd=root, check=True)
+
+            result = self.run_script(root, "backmerge-resolve.py", "--stable-ref", "main")
+            self.assertEqual(result.returncode, 1, result.stderr + result.stdout)
+            self.assertIn("conflict=dockhand/Dockerfile", result.stdout)
+            # The merge is aborted, not left half-resolved for someone to trip over.
+            self.assertFalse((root / ".git/MERGE_HEAD").exists())
         finally:
             shutil.rmtree(root)
 
