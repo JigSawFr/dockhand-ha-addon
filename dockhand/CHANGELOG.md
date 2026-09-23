@@ -1,3 +1,17 @@
+## 1.0.48.2-beta.1
+
+- Back-merge the stable channel into beta so the next promotion cannot move stable backwards.
+- Beta Home Assistant add-on wrapper preview for Dockhand `fnsys/dockhand:v1.0.48`.
+- Published from the `dev` channel for testing before a stable release.
+- Dockhand 1.0.48 release notes: https://github.com/Finsys/dockhand/releases/tag/v1.0.48
+
+## 1.0.48.1
+
+- Promote tested beta 1.0.48.1-beta.2 to stable.
+- Stable Home Assistant add-on wrapper revision for Dockhand `fnsys/dockhand:v1.0.48`.
+- Promoted from the tested beta channel.
+- Dockhand 1.0.48 release notes: https://github.com/Finsys/dockhand/releases/tag/v1.0.48
+
 ## 1.0.48.1-beta.2
 
 - Stop nginx warning about a duplicate text/html MIME type on startup, and guard the changelog against union-merge damage.
