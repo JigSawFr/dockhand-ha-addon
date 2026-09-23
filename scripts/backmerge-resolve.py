@@ -85,8 +85,18 @@ def resolve_stage(root: Path, path: str, strategy: str) -> None:
             str(stages["theirs"]),
             check=False,
         )
-        (root / path).write_text(stages["ours"].read_text(encoding="utf-8"), encoding="utf-8")
+        merged = stages["ours"].read_text(encoding="utf-8")
+    if strategy == "union":
+        merged = restore_entry_spacing(merged)
+    (root / path).write_text(merged, encoding="utf-8")
     git(root, "add", "--", path)
+
+
+def restore_entry_spacing(text: str) -> str:
+    """A union merge butts the two sides together at the seam, so the changelog
+    loses the blank line it keeps between entries. Only the seam can be affected;
+    every other heading already has its separator."""
+    return re.sub(r"(?<!\n\n)(?<=\n)(?=## )", "\n", text)
 
 
 def plan_beta(root: Path, current_version: str, dockhand_version: str, stable_ref: str) -> str:
