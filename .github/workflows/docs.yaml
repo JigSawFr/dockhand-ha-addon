@@ -54,3 +54,6 @@ jobs:
               sys.exit(1)
           print('docs_links=ok')
           PY
+
+      - name: Check changelog format
+        run: python3 scripts/check-changelog-format.py

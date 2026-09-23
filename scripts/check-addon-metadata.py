@@ -131,8 +131,20 @@ def main() -> int:
     for package in ["git", "openssh-client"]:
         if not re.search(rf"^[ \t]*{re.escape(package)}[ \t]*\\\\?$", dockerfile, re.M):
             errors.append(f"Dockerfile runtime packages must include {package!r} for Git stack SSH deploys")
-    if "sub_filter_types   text/html application/xhtml+xml;" not in nginx:
-        errors.append("nginx ingress must inject shim into text/html and application/xhtml+xml")
+    sub_filter_types = re.search(r"^[ \t]*sub_filter_types[ \t]+([^;]+);", nginx, re.M)
+    if sub_filter_types is None:
+        errors.append("nginx ingress must declare sub_filter_types so the shim reaches XHTML responses")
+    else:
+        declared = sub_filter_types.group(1).split()
+        if "application/xhtml+xml" not in declared:
+            errors.append("nginx ingress must inject shim into application/xhtml+xml")
+        if "text/html" in declared:
+            # text/html is always covered; the directive's default is exactly that.
+            errors.append(
+                "nginx ingress must not list text/html in sub_filter_types: it is the "
+                "directive's implicit default, and relisting it makes nginx warn "
+                "'duplicate MIME type \"text/html\"' on every start"
+            )
     if "/usr/bin/dockhand-seed-ha-environment" not in nginx_run:
         errors.append("nginx service must seed the default Home Assistant environment before exposing ingress")
     for entry in ["profile dockhand", "network inet stream,", "network unix stream,", "/var/run/docker.sock rw,", "/data/** rw,"]:

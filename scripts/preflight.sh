@@ -17,6 +17,7 @@ fi
 python3 scripts/check-version-sync.py
 python3 scripts/check-public-privacy.py
 python3 scripts/check-addon-metadata.py
+python3 scripts/check-changelog-format.py
 if git rev-parse --verify --quiet origin/main >/dev/null; then
     python3 scripts/check-channel-sync.py
 else
